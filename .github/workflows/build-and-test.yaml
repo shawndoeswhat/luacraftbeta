@@ -37,5 +37,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.repository }}-artifact
+          name: ${{ github.ref_name }}-artifact
           path: target/*.jar
