@@ -9,7 +9,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.*;
 
-import java.util.List;
+import java.util.Arrays;
+
 
 public class BindingCore {
     private static JavaPlugin plugin;
@@ -79,24 +80,24 @@ public class BindingCore {
                 "core",
                 "print",
                 "Prints a message to the server chat prefixed with [Lua].",
-                List.of(new Param("message", "string")),
+                Arrays.asList(new Param("message", "string")),
                 null);
 
         LuaDocRegistry.addFunction(
                 "core",
                 "wait",
                 "Yields the coroutine for a number of seconds, then resumes.",
-                List.of(new Param("seconds", "number")),
+                Arrays.asList(new Param("seconds", "number")),
                 null);
 
         LuaDocRegistry.addFunction(
                 "core",
                 "Vector3.new",
                 "Creates a new 3D vector with x, y, z coordinates.",
-                List.of(
+                Arrays.asList(
                         new Param("x", "number"),
                         new Param("y", "number"),
                         new Param("z", "number")),
-                List.of(new Return("Vector3", "A new vector object")));
+                Arrays.asList(new Return("Vector3", "A new vector object")));
     }
 }

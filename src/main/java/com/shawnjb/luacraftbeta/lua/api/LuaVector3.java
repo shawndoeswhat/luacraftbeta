@@ -1,6 +1,6 @@
 package com.shawnjb.luacraftbeta.lua.api;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.bukkit.util.Vector;
 import org.luaj.vm2.*;
@@ -120,28 +120,28 @@ public class LuaVector3 {
                 "Vector3",
                 "getX",
                 "Returns the X coordinate of the vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("number", "X coordinate")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "X coordinate")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "getY",
                 "Returns the Y coordinate of the vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("number", "Y coordinate")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Y coordinate")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "getZ",
                 "Returns the Z coordinate of the vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("number", "Z coordinate")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Z coordinate")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "set",
                 "Sets the vector's coordinates.",
-                List.of(
+                Arrays.asList(
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
@@ -151,35 +151,35 @@ public class LuaVector3 {
                 "Vector3",
                 "add",
                 "Adds another vector to this one.",
-                List.of(new LuaDocRegistry.Param("other", "Vector3")),
-                List.of(new LuaDocRegistry.Return("Vector3", "The updated vector")));
+                Arrays.asList(new LuaDocRegistry.Param("other", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "The updated vector")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "clone",
                 "Returns a copy of this vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("Vector3", "Cloned vector")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Cloned vector")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "length",
                 "Returns the length (magnitude) of the vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("number", "Length of the vector")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Length of the vector")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "normalize",
                 "Normalizes this vector to a unit vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("Vector3", "Normalized vector")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Normalized vector")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "toString",
                 "Returns a string representation of the vector.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("string", "Formatted string of coordinates")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("string", "Formatted string of coordinates")));
     }
 }

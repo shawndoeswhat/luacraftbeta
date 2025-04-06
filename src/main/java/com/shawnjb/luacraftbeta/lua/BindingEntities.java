@@ -14,6 +14,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.TwoArgFunction;
 import org.luaj.vm2.lib.OneArgFunction;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -105,10 +106,10 @@ public class BindingEntities {
                 "mc",
                 "summon",
                 "Spawns an entity at a location or at a player's position.",
-                List.of(
+                Arrays.asList(
                         new Param("entityName", "string"),
                         new Param("positionOrPlayer", "Vector3|string")),
-                List.of(new Return("table", "The spawned LuaEntity table")));
+                Arrays.asList(new Return("table", "The spawned LuaEntity table")));
 
         mc.set("getAllEntities", new OneArgFunction() {
             @Override
@@ -138,8 +139,8 @@ public class BindingEntities {
                 "mc",
                 "getAllEntities",
                 "Returns all entities in the given world.",
-                List.of(new Param("world", "table")),
-                List.of(new Return("table", "Array of LuaEntity tables")));
+                Arrays.asList(new Param("world", "table")),
+                Arrays.asList(new Return("table", "Array of LuaEntity tables")));
 
         mc.set("getEntitiesByType", new TwoArgFunction() {
             @Override
@@ -178,10 +179,10 @@ public class BindingEntities {
                 "mc",
                 "getEntitiesByType",
                 "Returns all entities of a given type from a world.",
-                List.of(
+                Arrays.asList(
                         new Param("world", "table"),
                         new Param("entityType", "string")),
-                List.of(new Return("table", "Array of LuaEntity tables matching the given type")));
+                Arrays.asList(new Return("table", "Array of LuaEntity tables matching the given type")));
 
         globals.set("mc", mc);
     }
@@ -191,25 +192,25 @@ public class BindingEntities {
                 "mc",
                 "summon",
                 "Spawns an entity at a location or at a player's position.",
-                List.of(
+                Arrays.asList(
                         new Param("entityName", "string"),
                         new Param("positionOrPlayer", "Vector3|string")),
-                List.of(new Return("table", "The spawned LuaEntity table")));
+                Arrays.asList(new Return("table", "The spawned LuaEntity table")));
 
         LuaDocRegistry.addFunction(
                 "mc",
                 "getAllEntities",
                 "Returns all entities in the given world.",
-                List.of(new Param("world", "table")),
-                List.of(new Return("table", "Array of LuaEntity tables")));
+                Arrays.asList(new Param("world", "table")),
+                Arrays.asList(new Return("table", "Array of LuaEntity tables")));
 
         LuaDocRegistry.addFunction(
                 "mc",
                 "getEntitiesByType",
                 "Returns all entities of a given type from a world.",
-                List.of(
+                Arrays.asList(
                         new Param("world", "table"),
                         new Param("entityType", "string")),
-                List.of(new Return("table", "Array of LuaEntity tables matching the given type")));
+                Arrays.asList(new Return("table", "Array of LuaEntity tables matching the given type")));
     }
 }

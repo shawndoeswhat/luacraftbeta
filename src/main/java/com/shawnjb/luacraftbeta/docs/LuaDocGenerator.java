@@ -2,9 +2,10 @@ package com.shawnjb.luacraftbeta.docs;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
+
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 public class LuaDocGenerator {
     public static void main(String[] args) {

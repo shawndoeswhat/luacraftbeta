@@ -10,7 +10,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class BindingWorld {
     public static void register(LuaValue globals) {
@@ -41,7 +41,7 @@ public class BindingWorld {
                 "mc",
                 "getWorld",
                 "Returns a world by its name.",
-                List.of(new Param("worldName", "string")),
-                List.of(new Return("table", "LuaWorld table")));
+                Arrays.asList(new Param("worldName", "string")),
+                Arrays.asList(new Return("table", "LuaWorld table")));
     }
 }

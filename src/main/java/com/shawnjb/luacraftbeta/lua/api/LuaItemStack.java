@@ -5,7 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Wool;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.bukkit.DyeColor;
 import org.luaj.vm2.*;
@@ -124,33 +124,36 @@ public class LuaItemStack {
         LuaDocRegistry.addClass("LuaItemStack");
 
         LuaDocRegistry.addFunction("LuaItemStack", "getType", "Gets the type of the item as a lowercase string.",
-                List.of(),
-                List.of(new LuaDocRegistry.Return("string", "The material type")));
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("string", "The material type")));
 
         LuaDocRegistry.addFunction("LuaItemStack", "setType", "Sets the item type using a string name.",
-                List.of(new LuaDocRegistry.Param("materialName", "string")),
+                Arrays.asList(new LuaDocRegistry.Param("materialName", "string")),
                 null);
 
-        LuaDocRegistry.addFunction("LuaItemStack", "getAmount", "Returns the number of items in the stack.", List.of(),
-                List.of(new LuaDocRegistry.Return("number", "The stack size")));
+        LuaDocRegistry.addFunction("LuaItemStack", "getAmount", "Returns the number of items in the stack.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "The stack size")));
 
         LuaDocRegistry.addFunction("LuaItemStack", "setAmount", "Sets the number of items in the stack.",
-                List.of(new LuaDocRegistry.Param("amount", "number")),
+                Arrays.asList(new LuaDocRegistry.Param("amount", "number")),
                 null);
 
-        LuaDocRegistry.addFunction("LuaItemStack", "getDurability", "Gets the durability value of the item.", List.of(),
-                List.of(new LuaDocRegistry.Return("number", "The durability value")));
+        LuaDocRegistry.addFunction("LuaItemStack", "getDurability", "Gets the durability value of the item.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "The durability value")));
 
         LuaDocRegistry.addFunction("LuaItemStack", "setDurability", "Sets the durability of the item.",
-                List.of(new LuaDocRegistry.Param("durability", "number")),
+                Arrays.asList(new LuaDocRegistry.Param("durability", "number")),
                 null);
 
         LuaDocRegistry.addFunction("LuaItemStack", "getData",
-                "Returns data for the item if available (e.g., wool color).", List.of(),
-                List.of(new LuaDocRegistry.Return("table|string", "A table with data or a message if unavailable")));
+                "Returns data for the item if available (e.g., wool color).", Arrays.asList(),
+                Arrays.asList(
+                        new LuaDocRegistry.Return("table|string", "A table with data or a message if unavailable")));
 
         LuaDocRegistry.addFunction("LuaItemStack", "setData", "Sets data on the item, like color for wool blocks.",
-                List.of(new LuaDocRegistry.Param("data", "table")),
+                Arrays.asList(new LuaDocRegistry.Param("data", "table")),
                 null);
     }
 }

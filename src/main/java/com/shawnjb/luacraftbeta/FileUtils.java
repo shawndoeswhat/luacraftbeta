@@ -2,9 +2,10 @@ package com.shawnjb.luacraftbeta;
 
 import java.io.*;
 import java.nio.file.*;
-import java.util.List;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.List;
 
 public class FileUtils {
     private final Logger logger;

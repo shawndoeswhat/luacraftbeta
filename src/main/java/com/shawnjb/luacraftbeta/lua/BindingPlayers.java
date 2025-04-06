@@ -10,7 +10,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class BindingPlayers {
     public static void register(LuaValue globals) {
@@ -51,14 +51,14 @@ public class BindingPlayers {
                 "mc",
                 "getPlayer",
                 "Gets a player by name if they are online. Returns a LuaPlayer or error table.",
-                List.of(new Param("name", "string")),
-                List.of(new Return("table", "LuaPlayer or error table")));
+                Arrays.asList(new Param("name", "string")),
+                Arrays.asList(new Return("table", "LuaPlayer or error table")));
 
         LuaDocRegistry.addFunction(
                 "mc",
                 "getOnlinePlayers",
                 "Returns a list of online player names.",
-                List.of(),
-                List.of(new Return("string[]", "Array of online player names")));
+                Arrays.asList(),
+                Arrays.asList(new Return("string[]", "Array of online player names")));
     }
 }

@@ -11,6 +11,7 @@ import org.luaj.vm2.lib.*;
 
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class LuaWorld {
@@ -208,47 +209,51 @@ public class LuaWorld {
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaWorld");
 
-        LuaDocRegistry.addFunction("LuaWorld", "getName", "Returns the name of the world.", List.of(),
-                List.of(new LuaDocRegistry.Return("string", "")));
+        LuaDocRegistry.addFunction("LuaWorld", "getName", "Returns the name of the world.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("string", "")));
 
-        LuaDocRegistry.addFunction("LuaWorld", "getTime", "Gets the current time in the world.", List.of(),
-                List.of(new LuaDocRegistry.Return("number", "")));
+        LuaDocRegistry.addFunction("LuaWorld", "getTime", "Gets the current time in the world.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "")));
 
-        LuaDocRegistry.addFunction("LuaWorld", "setTime", "Sets the current time in the world.", List.of(
+        LuaDocRegistry.addFunction("LuaWorld", "setTime", "Sets the current time in the world.", Arrays.asList(
                 new LuaDocRegistry.Param("time", "number")), null);
 
         LuaDocRegistry.addFunction("LuaWorld", "hasStorm",
-                "Returns whether the world is currently experiencing a storm.", List.of(),
-                List.of(new LuaDocRegistry.Return("boolean", "")));
+                "Returns whether the world is currently experiencing a storm.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "")));
 
-        LuaDocRegistry.addFunction("LuaWorld", "setStorm", "Enables or disables stormy weather in the world.", List.of(
-                new LuaDocRegistry.Param("value", "boolean")), null);
+        LuaDocRegistry.addFunction("LuaWorld", "setStorm", "Enables or disables stormy weather in the world.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("value", "boolean")),
+                null);
 
         LuaDocRegistry.addFunction("LuaWorld", "strikeLightning", "Strikes lightning at the given coordinates.",
-                List.of(
+                Arrays.asList(
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
                 null);
 
         LuaDocRegistry.addFunction("LuaWorld", "createExplosion",
-                "Creates an explosion at a location. Can accept x, y, z, power or (Vector3, power).", List.of(
+                "Creates an explosion at a location. Can accept x, y, z, power or (Vector3, power).", Arrays.asList(
                         new LuaDocRegistry.Param("xOrVector", "number|table"),
                         new LuaDocRegistry.Param("yOrPower", "number"),
                         new LuaDocRegistry.Param("z", "number") // optional depending on overload (yes)
                 ), null);
 
-        LuaDocRegistry.addFunction("LuaWorld", "getSeed", "Returns the seed used to generate the world.", List.of(),
-                List.of(new LuaDocRegistry.Return("number", "")));
+        LuaDocRegistry.addFunction("LuaWorld", "getSeed", "Returns the seed used to generate the world.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "")));
 
-        LuaDocRegistry.addFunction("LuaWorld", "getPlayers", "Returns a list of players in this world.", List.of(),
-                List.of(new LuaDocRegistry.Return("table", "Array of LuaPlayer objects")));
+        LuaDocRegistry.addFunction("LuaWorld", "getPlayers", "Returns a list of players in this world.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaPlayer objects")));
 
-        LuaDocRegistry.addFunction("LuaWorld", "getEntities", "Returns all entities in the world.", List.of(),
-                List.of(new LuaDocRegistry.Return("table", "Array of LuaEntity objects")));
+        LuaDocRegistry.addFunction("LuaWorld", "getEntities", "Returns all entities in the world.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity objects")));
 
         LuaDocRegistry.addFunction("LuaWorld", "setBlock",
-                "Sets a block at a given location to the specified type and optional data.", List.of(
+                "Sets a block at a given location to the specified type and optional data.", Arrays.asList(
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number"),
@@ -256,10 +261,10 @@ public class LuaWorld {
                         new LuaDocRegistry.Param("data", "number?")),
                 null);
 
-        LuaDocRegistry.addFunction("LuaWorld", "getBlockAt", "Returns the block at the given location.", List.of(
+        LuaDocRegistry.addFunction("LuaWorld", "getBlockAt", "Returns the block at the given location.", Arrays.asList(
                 new LuaDocRegistry.Param("x", "number"),
                 new LuaDocRegistry.Param("y", "number"),
                 new LuaDocRegistry.Param("z", "number")),
-                List.of(new LuaDocRegistry.Return("table", "LuaBlock representing the block")));
+                Arrays.asList(new LuaDocRegistry.Return("table", "LuaBlock representing the block")));
     }
 }

@@ -9,7 +9,8 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
 
-import java.util.List;
+import java.util.Arrays;
+
 
 public class BindingChat {
     public static void register(LuaValue globals) {
@@ -42,14 +43,14 @@ public class BindingChat {
                 "mc",
                 "broadcast",
                 "Broadcasts a message to all players on the server.",
-                List.of(new Param("message", "string")),
+                Arrays.asList(new Param("message", "string")),
                 null);
 
         LuaDocRegistry.addFunction(
                 "mc",
                 "sendMessage",
                 "Sends a private message to the specified player.",
-                List.of(
+                Arrays.asList(
                         new Param("playerName", "string"),
                         new Param("message", "string")),
                 null);

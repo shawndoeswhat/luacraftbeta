@@ -7,6 +7,7 @@ import org.luaj.vm2.lib.*;
 
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class LuaEntity {
@@ -144,47 +145,49 @@ public class LuaEntity {
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaEntity");
 
-        LuaDocRegistry.addFunction("LuaEntity", "getType", "Returns the entity type as a lowercase name.", List.of(),
-                List.of(new LuaDocRegistry.Return("string", "Entity type name")));
+        LuaDocRegistry.addFunction("LuaEntity", "getType", "Returns the entity type as a lowercase name.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("string", "Entity type name")));
 
-        LuaDocRegistry.addFunction("LuaEntity", "getId", "Returns the unique entity ID.", List.of(),
-                List.of(new LuaDocRegistry.Return("number", "Entity ID")));
+        LuaDocRegistry.addFunction("LuaEntity", "getId", "Returns the unique entity ID.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Entity ID")));
 
-        LuaDocRegistry.addFunction("LuaEntity", "isDead", "Returns whether the entity is dead.", List.of(),
-                List.of(new LuaDocRegistry.Return("boolean", "True if dead")));
+        LuaDocRegistry.addFunction("LuaEntity", "isDead", "Returns whether the entity is dead.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if dead")));
 
         LuaDocRegistry.addFunction("LuaEntity", "setFireTicks", "Sets the fire ticks duration.",
-                List.of(new LuaDocRegistry.Param("ticks", "number")),
+                Arrays.asList(new LuaDocRegistry.Param("ticks", "number")),
                 null);
 
         LuaDocRegistry.addFunction("LuaEntity", "teleport", "Teleports the entity to a position.",
-                List.of(
+                Arrays.asList(
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
                 null);
         LuaDocRegistry.addFunction("LuaEntity", "teleport", "Teleports the entity using a Vector3 table.",
-                List.of(new LuaDocRegistry.Param("vec", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Param("vec", "Vector3")),
                 null);
 
-        LuaDocRegistry.addFunction("LuaEntity", "getLocation", "Returns the entity's current location.", List.of(),
-                List.of(new LuaDocRegistry.Return("Vector3", "Entity position")));
+        LuaDocRegistry.addFunction("LuaEntity", "getLocation", "Returns the entity's current location.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Entity position")));
 
         LuaDocRegistry.addFunction("LuaEntity", "getNearbyEntities", "Returns a list of entities nearby the entity.",
-                List.of(
+                Arrays.asList(
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
-                List.of(new LuaDocRegistry.Return("table", "Array of LuaEntity tables")));
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity tables")));
 
         LuaDocRegistry.addFunction("LuaEntity", "isEmpty",
-                "Returns whether the entity is empty (e.g. vehicle without passenger).", List.of(),
-                List.of(new LuaDocRegistry.Return("boolean", "True if empty")));
+                "Returns whether the entity is empty (e.g. vehicle without passenger).", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if empty")));
 
-        LuaDocRegistry.addFunction("LuaEntity", "eject", "Ejects any passenger from the entity.", List.of(),
-                List.of(new LuaDocRegistry.Return("boolean", "True if something was ejected")));
+        LuaDocRegistry.addFunction("LuaEntity", "eject", "Ejects any passenger from the entity.", Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if something was ejected")));
 
-        LuaDocRegistry.addFunction("LuaEntity", "remove", "Removes the entity from the world.", List.of(),
+        LuaDocRegistry.addFunction("LuaEntity", "remove", "Removes the entity from the world.", Arrays.asList(),
                 null);
     }
 }

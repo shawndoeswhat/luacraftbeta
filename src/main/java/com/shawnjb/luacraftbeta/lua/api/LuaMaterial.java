@@ -1,6 +1,6 @@
 package com.shawnjb.luacraftbeta.lua.api;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.bukkit.Material;
 import org.luaj.vm2.*;
@@ -59,23 +59,25 @@ public class LuaMaterial {
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaMaterial");
 
-        LuaDocRegistry.addFunction("LuaMaterial", "getId", "Gets the numeric ID of the material.", List.of(), List.of(
-                new LuaDocRegistry.Return("number", "The Bukkit material ID")));
+        LuaDocRegistry.addFunction("LuaMaterial", "getId", "Gets the numeric ID of the material.", Arrays.asList(),
+                Arrays.asList(
+                        new LuaDocRegistry.Return("number", "The Bukkit material ID")));
 
         LuaDocRegistry.addFunction("LuaMaterial", "getMaxStackSize",
-                "Returns the maximum stack size for this material.", List.of(), List.of(
+                "Returns the maximum stack size for this material.", Arrays.asList(), Arrays.asList(
                         new LuaDocRegistry.Return("number", "")));
 
         LuaDocRegistry.addFunction("LuaMaterial", "getMaxDurability", "Returns the max durability of the material.",
-                List.of(), List.of(
+                Arrays.asList(), Arrays.asList(
                         new LuaDocRegistry.Return("number", "")));
 
-        LuaDocRegistry.addFunction("LuaMaterial", "getName", "Gets the lowercase name of the material.", List.of(),
-                List.of(
+        LuaDocRegistry.addFunction("LuaMaterial", "getName", "Gets the lowercase name of the material.",
+                Arrays.asList(),
+                Arrays.asList(
                         new LuaDocRegistry.Return("string", "")));
 
         LuaDocRegistry.addFunction("LuaMaterial", "isBlock", "Returns true if this material is a placeable block.",
-                List.of(), List.of(
+                Arrays.asList(), Arrays.asList(
                         new LuaDocRegistry.Return("boolean", "")));
     }
 }

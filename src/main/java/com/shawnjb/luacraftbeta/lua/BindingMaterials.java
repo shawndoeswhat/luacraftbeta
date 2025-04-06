@@ -9,7 +9,7 @@ import org.luaj.vm2.LuaTable;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.OneArgFunction;
 
-import java.util.List;
+import java.util.Arrays;
 
 public class BindingMaterials {
     public static void register(LuaValue globals) {
@@ -38,7 +38,7 @@ public class BindingMaterials {
                 "mc",
                 "getMaterial",
                 "Returns a material by its numeric ID.",
-                List.of(new Param("id", "integer")),
-                List.of(new Return("table", "LuaMaterial table if found, or an error message string")));
+                Arrays.asList(new Param("id", "integer")),
+                Arrays.asList(new Return("table", "LuaMaterial table if found, or an error message string")));
     }
 }

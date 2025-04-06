@@ -1,6 +1,6 @@
 package com.shawnjb.luacraftbeta.lua.api;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -226,14 +226,14 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "getName",
                 "Returns the name of the player.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("string", "The player's name")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("string", "The player's name")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "sendMessage",
                 "Sends a message to the player.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("message", "string")),
                 null);
@@ -242,14 +242,14 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "getLookDirection",
                 "Returns the direction the player is looking as a Vector3.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("Vector3", "Direction vector the player is facing")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("Vector3", "Direction vector the player is facing")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "teleport",
                 "Teleports the player to the given coordinates or Vector3.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("x", "number"),
                         new Param("y", "number"),
@@ -260,14 +260,14 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "getHealth",
                 "Gets the player's current health.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("number", "Current health value")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("number", "Current health value")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "setHealth",
                 "Sets the player's health, clamped between 0 and 20.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("health", "number")),
                 null);
@@ -276,14 +276,14 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "isOp",
                 "Checks if the player is an operator.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("boolean", "True if the player is op")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("boolean", "True if the player is op")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "setOp",
                 "Sets the player's operator status.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("value", "boolean")),
                 null);
@@ -292,7 +292,7 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "kick",
                 "Kicks the player with the given reason.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("reason", "string")),
                 null);
@@ -301,14 +301,14 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "getItemInHand",
                 "Gets the item in the player's hand.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("string", "Item in format 'material:amount' or nil")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("string", "Item in format 'material:amount' or nil")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "setItemInHand",
                 "Sets the item in the player's hand.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("material", "string"),
                         new Param("amount", "number")),
@@ -318,7 +318,7 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "giveItem",
                 "Gives the player an item.",
-                List.of(
+                Arrays.asList(
                         new Param("self", "LuaPlayer"),
                         new Param("material", "string"),
                         new Param("amount", "number")),
@@ -328,21 +328,21 @@ public class LuaPlayer {
                 "LuaPlayer",
                 "getLocation",
                 "Returns the player's current position as a Vector3.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("Vector3", "Player position vector")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("Vector3", "Player position vector")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "getDimension",
                 "Gets the dimension name the player is currently in.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("string", "Dimension name (overworld, nether, the_end, unknown)")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("string", "Dimension name (overworld, nether, the_end, unknown)")));
 
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "getWorld",
                 "Gets the LuaWorld object the player is in.",
-                List.of(new Param("self", "LuaPlayer")),
-                List.of(new Return("LuaWorld", "The world the player is currently in")));
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("LuaWorld", "The world the player is currently in")));
     }
 }
