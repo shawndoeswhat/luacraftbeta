@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/java,intellij,intellij+all,intellij+iml
 # Edit at https://www.gitignore.io/?templates=java,intellij,intellij+all,intellij+iml
 
@@ -225,3 +224,6 @@ hs_err_pid*
 # End of https://www.gitignore.io/api/java,intellij,intellij+all,intellij+iml
 
 target/
+
+# Allow JARs with copyright obviously
+!jars/*.jar

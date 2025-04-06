@@ -1,22 +1,32 @@
-name: ${project.name}
-description: ${project.description}
-main: org.retromc.templateplugin.TemplatePlugin
-version: ${project.version}
+name: LuaCraftBeta
+description: A plugin that integrates Lua scripting into Minecraft.
+main: com.shawnjb.luacraftbeta.LuaCraftBetaPlugin
+version: 0.1.0
 authors:
-  - JohnyMuffin
+  - shawnjb
 softdepend:
   - Essentials
 
 commands:
-  testcommand:
-    description: A test command for the plugin.
-    usage: /<command> [args]
-    aliases: [tc]
-    permission: myplugin.testcommand
+  loadscript:
+    description: Load a Lua script by name.
+    usage: /<command> <scriptName>
+    permission: luacraftbeta.loadscript
+    permission-message: You do not have permission to use this command.
+  
+  listscripts:
+    description: List all available Lua scripts in the scripts directory.
+    usage: /<command>
+    permission: luacraftbeta.listscripts
     permission-message: You do not have permission to use this command.
 
 permissions:
-  myplugin.*:
-    description: Gives access to all myplugin commands.
+  luacraftbeta.*:
+    description: Gives access to all LuaCraftBeta commands.
     children:
-      myplugin.testcommand: true
+      luacraftbeta.loadscript: true
+      luacraftbeta.listscripts: true
+  luacraftbeta.loadscript:
+    description: Allows access to the /loadscript command.
+  luacraftbeta.listscripts:
+    description: Allows access to the /listscripts command.

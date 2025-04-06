@@ -1,45 +1,88 @@
-# Poseidon-Plugin-Template
+# LuaCraftBeta
 
-This repository serves as a template to assist with creating plugins for Project Poseidon.
+**LuaCraftBeta** is a Lua scripting plugin for Minecraft Beta 1.7.3 (CB1060), powered by LuaJ. It allows you to run Lua scripts in your Minecraft world, providing access to powerful scripting features like player interaction, world manipulation, explosions, item management, and more.
 
-It includes examples of:
-- A configuration file.
-- A listener.
-- A command.
+Made with care by [shawnjb](https://github.com/shawnjb)
 
-## Steps to Use This Template
+---
 
-1. **Clone the Repository**
-    - Clone this repository to your local machine.
+## Features
 
-2. **Modify `pom.xml`**
-    - Update the following fields to reflect your plugin:
-        - `name`
-        - `version`
-        - `description`
-    - **Note:** Removing `-SNAPSHOT` from the version will trigger the `release.yml` GitHub Action to create a GitHub release.
+- LuaJ-powered scripting engine.
+- Full APIs for interacting with **Player**, **World**, **Entity**, **Block**, **Material**, and more.
+- Supports in-game commands and interactions.
+- Generates [LuaCATS](https://github.com/LuaCATS/)-compatible documentation (`docs.lua`) for easier development.
+- Scripting hooks for commands such as **summon**, **teleport**, **createExplosion**, **setBlock**, and more.
+- Handles player and entity interactions like giving items, teleportation, and more.
 
-3. **Refactor Package Structure**
-    - Refactor the package `org.retromc.templateplugin` to a unique package name for your plugin to avoid conflicts.
+---
 
-4. **Update `plugin.yml`**
-    - Update the `plugin.yml` file to match the refactored package name and plugin metadata.
+## Installation
 
-5. **Modify the Code**
-    - Customize the code as required for your plugin.
-    - **Important:**
-        - Remove the player greeting example in the listener.
-        - Remove the test command.
+1. **Download or Clone the Repository**:
+   You can download or clone the repository to your Minecraft server's plugin directory.
 
-## GitHub Actions
+   ```bash
+   git clone https://github.com/shawnjb/LuaCraftBeta.git
+   ```
 
-This repository includes a pre-configured GitHub Action:
+2. **Build the Plugin**:
+   Make sure you have **Maven** installed and then run the following command to build the plugin.
 
-1. **`build-and-test.yml`**:
-    - Runs tests on every push to ensure code quality.
-    - Uploads an artifact for each commit, allowing others to download the plugin for testing.
+   ```bash
+   mvn clean package
+   ```
 
-2. **`release.yml`**:
-    - Automatically creates a GitHub release if the `-SNAPSHOT` suffix is removed from the version in `pom.xml`.
+3. **Deploy the Plugin**:
+   After building, you will find the plugin `.jar` file in the `target/` directory. Move this `.jar` file to your Minecraft server's `plugins/` folder.
 
-With this template, you can kickstart your plugin development for Project Poseidon quickly and efficiently.
+4. **Start the Server**:
+   Launch your Minecraft Beta 1.7.3 server with the plugin installed.
+
+5. **Enjoy Lua Scripting**:
+   Once the server starts, you can execute Lua scripts using the `/loadscript [scriptName]` command.
+
+---
+
+## Usage
+
+### Running Scripts:
+
+To run a script, use the `/loadscript` command in the server. For example:
+
+```bash
+/loadscript myscript.lua
+```
+
+This will load and execute the `myscript.lua` file located in the `plugins/LuaCraftBeta/scripts/` directory.
+
+### Documentation:
+
+The plugin automatically generates a `docs.lua` file with LuaCATS-compatible documentation. After building, you can find it in:
+
+```
+src/main/resources/docs/docs.lua
+```
+
+This file contains detailed documentation on how to use the API, including the available classes and methods such as **Player**, **World**, **Entity**, and **Block**. The documentation will assist you in writing your Lua scripts.
+
+### Debugging:
+
+When running scripts, you can enable debug mode to log extra details about the script execution. This can be done by adding `debug` as a second argument to the `/loadscript` command:
+
+```bash
+/loadscript myscript.lua debug
+```
+
+---
+
+## Commands
+
+- **/loadscript [scriptName]**: Loads and executes the specified Lua script.
+- **/loadscript [scriptName] debug**: Loads and executes the Lua script with debug logging enabled.
+
+---
+
+## License
+
+MIT — use it, modify it, and share it freely.
