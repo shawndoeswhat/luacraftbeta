@@ -37,7 +37,7 @@ jobs:
         run: mvn clean install
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: ${{ github.event.repository.name }}-artifact
           path: target/*.jar
