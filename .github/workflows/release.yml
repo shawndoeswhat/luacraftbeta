@@ -20,6 +20,14 @@ jobs:
           distribution: 'temurin'
           java-version: 8
 
+      - name: Download luaj-jse-3.0.2.jar
+        run: |
+          curl -L -o ./jars/luaj-jse-3.0.2.jar https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar
+
+      - name: Install luaj-jse-3.0.2 to local Maven repository
+        run: |
+          mvn install:install-file -Dfile=./jars/luaj-jse-3.0.2.jar -DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar
+
       - name: Get the version from pom.xml
         id: get_version
         run: echo "PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV

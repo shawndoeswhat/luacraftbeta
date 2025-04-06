@@ -29,7 +29,15 @@ jobs:
         with:
           maven-version: 3.9.1
 
-      - name: build application
+      - name: Download luaj-jse-3.0.2.jar
+        run: |
+          curl -L -o ./jars/luaj-jse-3.0.2.jar https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar
+
+      - name: Install luaj-jse-3.0.2 to local Maven repository
+        run: |
+          mvn install:install-file -Dfile=./jars/luaj-jse-3.0.2.jar -DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar
+
+      - name: Build application
         shell: bash
         run: |
           mvn clean install
