@@ -11,7 +11,7 @@ Made with care by [shawnjb](https://github.com/shawnjb)
 - LuaJ-powered scripting engine.
 - Full APIs for interacting with **Player**, **World**, **Entity**, **Block**, **Material**, and more.
 - Supports in-game commands and interactions.
-- Generates [LuaCATS](https://github.com/LuaCATS/)-compatible documentation (`docs.lua`) for easier development.
+- Generates LuaCATS-compatible documentation (`docs.lua`) for easier development.
 - Scripting hooks for commands such as **summon**, **teleport**, **createExplosion**, **setBlock**, and more.
 - Handles player and entity interactions like giving items, teleportation, and more.
 
@@ -19,28 +19,48 @@ Made with care by [shawnjb](https://github.com/shawnjb)
 
 ## Installation
 
-1. **Download or Clone the Repository**:
-   You can download or clone the repository to your Minecraft server's plugin directory.
+To build **LuaCraftBeta**, you need to follow these steps:
 
-   ```bash
-   git clone https://github.com/shawnjb/LuaCraftBeta.git
-   ```
+### 1. Install `luaj-jse-3.0.2.jar` to Your Local Maven Repository
 
-2. **Build the Plugin**:
-   Make sure you have **Maven** installed and then run the following command to build the plugin.
+Before building the project, you need to install the `luaj-jse-3.0.2.jar` file into your local Maven repository.
 
-   ```bash
-   mvn clean package
-   ```
+- Download the `luaj-jse-3.0.2.jar` from the [official release page](https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar).
+- Once downloaded, use the following Maven command to install it into your local repository:
 
-3. **Deploy the Plugin**:
-   After building, you will find the plugin `.jar` file in the `target/` directory. Move this `.jar` file to your Minecraft server's `plugins/` folder.
+```bash
+mvn install:install-file -Dfile=./jars/luaj-jse-3.0.2.jar -DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar
+```
 
-4. **Start the Server**:
-   Launch your Minecraft Beta 1.7.3 server with the plugin installed.
+This will install the `luaj-jse-3.0.2.jar` in your local Maven repository.
 
-5. **Enjoy Lua Scripting**:
-   Once the server starts, you can execute Lua scripts using the `/loadscript [scriptName]` command.
+### 2. Download or Clone the Repository
+
+You can download or clone the repository to your Minecraft server's plugin directory.
+
+```bash
+git clone https://github.com/shawnjb/LuaCraftBeta.git
+```
+
+### 3. Build the Plugin
+
+Make sure you have **Maven** installed and then run the following command to build the plugin.
+
+```bash
+mvn clean package
+```
+
+### 4. Deploy the Plugin
+
+After building, you will find the plugin `.jar` file in the `target/` directory. Move this `.jar` file to your Minecraft server's `plugins/` folder.
+
+### 5. Start the Server
+
+Launch your Minecraft Beta 1.7.3 server with the plugin installed.
+
+### 6. Enjoy Lua Scripting
+
+Once the server starts, you can execute Lua scripts using the `/loadscript [scriptName]` command.
 
 ---
 
