@@ -58,26 +58,35 @@ public class LuaMaterial {
 
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaMaterial");
-
-        LuaDocRegistry.addFunction("LuaMaterial", "getId", "Gets the numeric ID of the material.", Arrays.asList(),
-                Arrays.asList(
-                        new LuaDocRegistry.Return("number", "The Bukkit material ID")));
-
+    
+        LuaDocRegistry.addFunction("LuaMaterial", "getId",
+                "Gets the numeric ID of the material.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaMaterial")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "The Bukkit material ID")),
+                true);
+    
         LuaDocRegistry.addFunction("LuaMaterial", "getMaxStackSize",
-                "Returns the maximum stack size for this material.", Arrays.asList(), Arrays.asList(
-                        new LuaDocRegistry.Return("number", "")));
-
-        LuaDocRegistry.addFunction("LuaMaterial", "getMaxDurability", "Returns the max durability of the material.",
-                Arrays.asList(), Arrays.asList(
-                        new LuaDocRegistry.Return("number", "")));
-
-        LuaDocRegistry.addFunction("LuaMaterial", "getName", "Gets the lowercase name of the material.",
-                Arrays.asList(),
-                Arrays.asList(
-                        new LuaDocRegistry.Return("string", "")));
-
-        LuaDocRegistry.addFunction("LuaMaterial", "isBlock", "Returns true if this material is a placeable block.",
-                Arrays.asList(), Arrays.asList(
-                        new LuaDocRegistry.Return("boolean", "")));
-    }
+                "Returns the maximum stack size for this material.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaMaterial")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "")),
+                true);
+    
+        LuaDocRegistry.addFunction("LuaMaterial", "getMaxDurability",
+                "Returns the max durability of the material.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaMaterial")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "")),
+                true);
+    
+        LuaDocRegistry.addFunction("LuaMaterial", "getName",
+                "Gets the lowercase name of the material.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaMaterial")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "")),
+                true);
+    
+        LuaDocRegistry.addFunction("LuaMaterial", "isBlock",
+                "Returns true if this material is a placeable block.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaMaterial")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "")),
+                true);
+    }    
 }

@@ -16,8 +16,7 @@ local randomDeathMessages = {
 }
 
 --- @param player LuaPlayer
---- @param deathMessage string
-return function(player, deathMessage)
+return function(player)
     local name = player:getName()
 
     -- choose a random dry/sarcastic message
@@ -31,6 +30,5 @@ return function(player, deathMessage)
         existing = {}
     end
 
-    table.insert(existing, os.date("%Y-%m-%d %H:%M:%S") .. " - " .. deathMessage)
     storage.applySaveData(key, existing)
 end

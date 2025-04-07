@@ -66,8 +66,9 @@ public class LuaDocGenerator {
                         writer.write(String.format("---%s\n", func.description));
 
                         for (LuaDocRegistry.Param param : func.params) {
+                            if (func.isMethod && param.name.equals("self")) continue;
                             writer.write(String.format("---@param %s %s\n", param.name, param.type));
-                        }
+                        }                        
 
                         for (LuaDocRegistry.Return ret : func.returns) {
                             if (ret.description != null && !ret.description.isEmpty()) {
@@ -77,17 +78,23 @@ public class LuaDocGenerator {
                             }
                         }
 
+                        String prefix;
                         if (isGlobal) {
-                            writer.write(String.format("function %s(", func.name));
+                            prefix = "function " + func.name;
                         } else {
-                            writer.write(String.format("function %s.%s(", category, func.name));
+                            prefix = "function " + category + (func.isMethod ? ":" : ".") + func.name;
                         }
+                        writer.write(prefix + "(");                        
 
-                        for (int i = 0; i < func.params.size(); i++) {
-                            writer.write(func.params.get(i).name);
-                            if (i < func.params.size() - 1)
+                        List<LuaDocRegistry.Param> params = func.params;
+                        for (int i = 0; i < params.size(); i++) {
+                            if (func.isMethod && params.get(i).name.equals("self")) continue;
+                        
+                            writer.write(params.get(i).name);
+                            if (i < params.size() - 1 && !(func.isMethod && params.get(i + 1).name.equals("self")))
                                 writer.write(", ");
                         }
+                        
                         writer.write(") end\n\n");
                     }
                 }

@@ -9,8 +9,13 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
-import org.luaj.vm2.*;
-import org.luaj.vm2.lib.*;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.Varargs;
+import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.TwoArgFunction;
+import org.luaj.vm2.lib.VarArgFunction;
 
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Param;
@@ -121,14 +126,10 @@ public class LuaPlayer {
             }
         });
 
-        lua.set("getItemInHand", new OneArgFunction() {
+        lua.set("getType", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue self) {
-                ItemStack item = player.getItemInHand();
-                if (item != null) {
-                    return LuaValue.valueOf(item.getType().toString().toLowerCase() + ":" + item.getAmount());
-                }
-                return LuaValue.NIL;
+                return LuaValue.valueOf("player");
             }
         });
 
@@ -193,8 +194,6 @@ public class LuaPlayer {
                     return LuaValue.valueOf("overworld");
                 } else if ("world_nether".equals(worldName)) {
                     return LuaValue.valueOf("nether");
-                } else if ("world_the_end".equals(worldName)) {
-                    return LuaValue.valueOf("the_end");
                 }
 
                 return LuaValue.valueOf("unknown");
@@ -245,131 +244,215 @@ public class LuaPlayer {
             }
         });
 
+        lua.set("getVelocity", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                Vector vec = player.getVelocity();
+                return new LuaVector3(vec).toLuaTable();
+            }
+        });
+
+        lua.set("setVelocity", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("setVelocity(Vector3) expects a Vector3 table");
+                }
+
+                try {
+                    Vector vec = LuaVector3.fromTable(vecValue.checktable());
+                    player.setVelocity(vec);
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("setVelocity(Vector3) expects numeric x, y, z fields");
+                }
+            }
+        });
+
+        lua.set("heal", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                player.setHealth(20);
+                return LuaValue.NIL;
+            }
+        });
+
+        lua.set("setHealth", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue value) {
+                if (value.isnumber()) {
+                    int health = Math.max(0, Math.min(value.toint(), 20));
+                    player.setHealth(health);
+                    return LuaValue.NIL;
+                }
+                return LuaValue.valueOf("Error: setHealth expects a number.");
+            }
+        });
+
+        lua.set("getMaxHealth", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(20);
+            }
+        });
+
+        lua.set("isAlive", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(player.getHealth() > 0);
+            }
+        });
+
+        lua.set("damage", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue amount) {
+                if (amount.isnumber()) {
+                    player.damage(amount.toint());
+                    return LuaValue.NIL;
+                }
+                return LuaValue.valueOf("Error: damage(amount) expects a number.");
+            }
+        });
+
+        lua.set("kill", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                player.setHealth(0);
+                return LuaValue.NIL;
+            }
+        });
+
         return lua;
     }
 
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaPlayer");
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getName",
-                "Returns the name of the player.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getName", "Returns the name of the player.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("string", "The player's name")));
+                Arrays.asList(new Return("string", "The player's name")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "sendMessage",
-                "Sends a message to the player.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("message", "string")),
-                null);
+        LuaDocRegistry.addFunction("LuaPlayer", "sendMessage", "Sends a message to the player.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("message", "string")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getLookDirection",
+        LuaDocRegistry.addFunction("LuaPlayer", "getLookDirection",
                 "Returns the direction the player is looking as a Vector3.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("Vector3", "Direction vector the player is facing")));
+                Arrays.asList(new Return("Vector3", "Direction vector the player is facing")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "teleport",
-                "Teleports the player to the given Vector3 position.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("position", "Vector3")),
-                null);
+        LuaDocRegistry.addFunction("LuaPlayer", "teleport", "Teleports the player to the given Vector3 position.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("position", "Vector3")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getHealth",
-                "Gets the player's current health.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getHealth", "Gets the player's current health.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("number", "Current health value")));
+                Arrays.asList(new Return("number", "Current health value")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "setHealth",
-                "Sets the player's health, clamped between 0 and 20.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("health", "number")),
-                null);
+        LuaDocRegistry.addFunction("LuaPlayer", "setHealth", "Sets the player's health, clamped between 0 and 20.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("health", "number")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "isOp",
-                "Checks if the player is an operator.",
+        LuaDocRegistry.addFunction("LuaPlayer", "isOp", "Checks if the player is an operator.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("boolean", "True if the player is op")));
+                Arrays.asList(new Return("boolean", "True if the player is op")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "setOp",
-                "Sets the player's operator status.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("value", "boolean")),
-                null);
+        LuaDocRegistry.addFunction("LuaPlayer", "setOp", "Sets the player's operator status.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("value", "boolean")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "kick",
-                "Kicks the player with the given reason.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("reason", "string")),
-                null);
+        LuaDocRegistry.addFunction("LuaPlayer", "kick", "Kicks the player with the given reason.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("reason", "string")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getItemInHand",
-                "Gets the item in the player's hand.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getType",
+                "Returns the entity type name for compatibility with LuaEntity.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("string", "Item in format 'material:amount' or nil")));
+                Arrays.asList(new Return("string", "Always returns 'player'")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "setItemInHand",
-                "Sets the item in the player's hand.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("material", "string"),
+        LuaDocRegistry.addFunction("LuaPlayer", "getItemInHand", "Gets the item in the player's hand.",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("LuaItemStack|nil", "LuaItemStack table or nil if empty")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "setItemInHand", "Sets the item in the player's hand.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("material", "string"),
                         new Param("amount", "number")),
-                null);
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "giveItem",
-                "Gives the player an item.",
-                Arrays.asList(
-                        new Param("self", "LuaPlayer"),
-                        new Param("material", "string"),
+        LuaDocRegistry.addFunction("LuaPlayer", "giveItem", "Gives the player an item.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("material", "string"),
                         new Param("amount", "number")),
-                null);
+                null,
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getLocation",
-                "Returns the player's current position as a Vector3.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getLocation", "Returns the player's current position as a Vector3.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("Vector3", "Player position vector")));
+                Arrays.asList(new Return("Vector3", "Player position vector")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getDimension",
-                "Gets the dimension name the player is currently in.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getDimension", "Gets the dimension name the player is currently in.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("string", "Dimension name (overworld, nether, the_end, unknown)")));
+                Arrays.asList(new Return("string", "Dimension name (overworld, nether, unknown)")),
+                true);
 
-        LuaDocRegistry.addFunction(
-                "LuaPlayer",
-                "getWorld",
-                "Gets the LuaWorld object the player is in.",
+        LuaDocRegistry.addFunction("LuaPlayer", "getWorld", "Gets the LuaWorld object the player is in.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
-                Arrays.asList(new Return("LuaWorld", "The world the player is currently in")));
+                Arrays.asList(new Return("LuaWorld", "The world the player is currently in")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "getVelocity",
+                "Returns the player's current velocity as a Vector3.",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("Vector3", "Velocity vector")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "setVelocity",
+                "Sets the player's velocity using a Vector3.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("velocity", "Vector3")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "heal", "Fully restores the player's health.",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "setHealth", "Sets the player's health, clamped between 0 and 20.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("health", "number")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "getMaxHealth",
+                "Returns the maximum health value for the player (always 20 in Beta).",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("number", "Maximum health value")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "isAlive", "Returns whether the player is alive (health > 0).",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                Arrays.asList(new Return("boolean", "True if the player is alive")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "damage", "Damages the player by the given amount.",
+                Arrays.asList(new Param("self", "LuaPlayer"), new Param("amount", "number")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "kill", "Kills the player by setting their health to 0.",
+                Arrays.asList(new Param("self", "LuaPlayer")),
+                null,
+                true);
     }
 }

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 import org.luaj.vm2.LuaError;
 import org.luaj.vm2.LuaTable;
@@ -47,6 +49,31 @@ public class LuaEntity {
             }
         });
 
+        t.set("getVelocity", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                Vector velocity = entity.getVelocity();
+                return new LuaVector3(velocity).toLuaTable();
+            }
+        });
+
+        t.set("setVelocity", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("setVelocity(Vector3) expects a Vector3 table");
+                }
+
+                try {
+                    Vector vec = LuaVector3.fromTable(vecValue.checktable());
+                    entity.setVelocity(vec);
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("setVelocity(Vector3) expects numeric x, y, z fields");
+                }
+            }
+        });
+
         t.set("setFireTicks", new TwoArgFunction() {
             @Override
             public LuaValue call(LuaValue self, LuaValue ticks) {
@@ -84,6 +111,16 @@ public class LuaEntity {
             public LuaValue call(LuaValue self) {
                 Location loc = entity.getLocation();
                 return new LuaVector3(loc.getX(), loc.getY(), loc.getZ()).toLuaTable();
+            }
+        });
+
+        t.set("getName", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof Player) {
+                    return LuaValue.valueOf(((Player) entity).getName());
+                }
+                return LuaValue.valueOf(entity.getClass().getSimpleName().toLowerCase());
             }
         });
 
@@ -137,6 +174,13 @@ public class LuaEntity {
             }
         });
 
+        t.set("getWorld", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return new LuaWorld(entity.getWorld()).toLuaTable();
+            }
+        });
+
         t.set("eject", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue self) {
@@ -152,6 +196,74 @@ public class LuaEntity {
             }
         });
 
+        t.set("isOp", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof Player) {
+                    return LuaValue.valueOf(((Player) entity).isOp());
+                }
+                return LuaValue.valueOf(false);
+            }
+        });
+
+        t.set("getHealth", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof LivingEntity) {
+                    return LuaValue.valueOf(((LivingEntity) entity).getHealth());
+                }
+                return LuaValue.valueOf(-1);
+            }
+        });
+
+        t.set("getMaxHealth", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(20); // hardcoded for Beta
+            }
+        });
+
+        t.set("isAlive", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof LivingEntity) {
+                    return LuaValue.valueOf(((LivingEntity) entity).getHealth() > 0);
+                }
+                return LuaValue.FALSE;
+            }
+        });
+
+        t.set("heal", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof LivingEntity) {
+                    ((LivingEntity) entity).setHealth(20);
+                }
+                return LuaValue.NIL;
+            }
+        });
+
+        t.set("damage", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue amount) {
+                if (entity instanceof LivingEntity && amount.isnumber()) {
+                    ((LivingEntity) entity).damage(amount.toint());
+                    return LuaValue.NIL;
+                }
+                return LuaValue.valueOf("Error: damage(amount) expects a number and a living entity.");
+            }
+        });
+
+        t.set("kill", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                if (entity instanceof LivingEntity) {
+                    ((LivingEntity) entity).setHealth(0);
+                }
+                return LuaValue.NIL;
+            }
+        });
+
         return t;
     }
 
@@ -159,41 +271,126 @@ public class LuaEntity {
         LuaDocRegistry.addClass("LuaEntity");
 
         LuaDocRegistry.addFunction("LuaEntity", "getType", "Returns the entity type as a lowercase name.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("string", "Entity type name")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "Entity type name")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaEntity", "getId", "Returns the unique entity ID.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Entity ID")));
+        LuaDocRegistry.addFunction("LuaEntity", "getId", "Returns the unique entity ID.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Entity ID")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaEntity", "isDead", "Returns whether the entity is dead.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if dead")));
+        LuaDocRegistry.addFunction("LuaEntity", "getName",
+                "Returns the name of the entity. If the entity is a player, this is their username. Otherwise, it falls back to the type name.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "The name or type name of the entity")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "isDead", "Returns whether the entity is dead.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if dead")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "getVelocity", "Gets the entity's current velocity vector.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Velocity vector")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "setVelocity", "Sets the entity's velocity.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaEntity"),
+                        new LuaDocRegistry.Param("velocity", "Vector3")),
+                null,
+                true);
 
         LuaDocRegistry.addFunction("LuaEntity", "setFireTicks", "Sets the fire ticks duration.",
-                Arrays.asList(new LuaDocRegistry.Param("ticks", "number")),
-                null);
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaEntity"),
+                        new LuaDocRegistry.Param("ticks", "number")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction("LuaEntity", "teleport",
-                "Teleports the entity using a Vector3 table.",
-                Arrays.asList(new LuaDocRegistry.Param("position", "Vector3")),
-                null);
+        LuaDocRegistry.addFunction("LuaEntity", "teleport", "Teleports the entity using a Vector3 table.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaEntity"),
+                        new LuaDocRegistry.Param("position", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Return("nil", "Always returns nil")),
+                true);
 
         LuaDocRegistry.addFunction("LuaEntity", "getLocation", "Returns the entity's current location.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Entity position")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Entity position")),
+                true);
 
         LuaDocRegistry.addFunction("LuaEntity", "getEntitiesInChunk",
                 "Returns all entities in the chunk this entity is currently in.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity tables")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity tables")),
+                true);
 
         LuaDocRegistry.addFunction("LuaEntity", "isEmpty",
-                "Returns whether the entity is empty (e.g. vehicle without passenger).", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if empty")));
+                "Returns whether the entity is empty (e.g. vehicle without passenger).",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if empty")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaEntity", "eject", "Ejects any passenger from the entity.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if something was ejected")));
+        LuaDocRegistry.addFunction("LuaEntity", "getWorld", "Returns the world the entity is in.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("LuaWorld", "The world the entity belongs to")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaEntity", "remove", "Removes the entity from the world.", Arrays.asList(),
-                null);
+        LuaDocRegistry.addFunction("LuaEntity", "eject", "Ejects any passenger from the entity.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if something was ejected")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "remove", "Removes the entity from the world.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "isOp",
+                "Returns true if the entity is a player and they are an operator.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if the player is op; false otherwise")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "getHealth",
+                "Returns the current health of the entity if it's a living entity.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Current health, or -1 if not a living entity")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "getMaxHealth",
+                "Returns the maximum health value for the entity. Always 20 for now.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Max health (20)")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "isAlive",
+                "Returns true if the entity is a living entity and has health greater than 0.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if alive, false otherwise")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "heal",
+                "Fully restores the entity's health to 20, if it's a living entity.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "damage",
+                "Damages the entity by the given amount, if it's a living entity.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaEntity"),
+                        new LuaDocRegistry.Param("amount", "number")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaEntity", "kill",
+                "Instantly sets the entity's health to 0, if it's a living entity.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaEntity")),
+                null,
+                true);
     }
 }

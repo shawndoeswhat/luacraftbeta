@@ -122,38 +122,54 @@ public class LuaItemStack {
 
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaItemStack");
-
+    
         LuaDocRegistry.addFunction("LuaItemStack", "getType", "Gets the type of the item as a lowercase string.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("string", "The material type")));
-
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaItemStack")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "The material type")),
+                true);
+    
         LuaDocRegistry.addFunction("LuaItemStack", "setType", "Sets the item type using a string name.",
-                Arrays.asList(new LuaDocRegistry.Param("materialName", "string")),
-                null);
-
-        LuaDocRegistry.addFunction("LuaItemStack", "getAmount", "Returns the number of items in the stack.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "The stack size")));
-
-        LuaDocRegistry.addFunction("LuaItemStack", "setAmount", "Sets the number of items in the stack.",
-                Arrays.asList(new LuaDocRegistry.Param("amount", "number")),
-                null);
-
-        LuaDocRegistry.addFunction("LuaItemStack", "getDurability", "Gets the durability value of the item.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "The durability value")));
-
-        LuaDocRegistry.addFunction("LuaItemStack", "setDurability", "Sets the durability of the item.",
-                Arrays.asList(new LuaDocRegistry.Param("durability", "number")),
-                null);
-
-        LuaDocRegistry.addFunction("LuaItemStack", "getData",
-                "Returns data for the item if available (e.g., wool color).", Arrays.asList(),
                 Arrays.asList(
-                        new LuaDocRegistry.Return("table|string", "A table with data or a message if unavailable")));
-
+                        new LuaDocRegistry.Param("self", "LuaItemStack"),
+                        new LuaDocRegistry.Param("materialName", "string")),
+                null,
+                true);
+    
+        LuaDocRegistry.addFunction("LuaItemStack", "getAmount", "Returns the number of items in the stack.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaItemStack")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "The stack size")),
+                true);
+    
+        LuaDocRegistry.addFunction("LuaItemStack", "setAmount", "Sets the number of items in the stack.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaItemStack"),
+                        new LuaDocRegistry.Param("amount", "number")),
+                null,
+                true);
+    
+        LuaDocRegistry.addFunction("LuaItemStack", "getDurability", "Gets the durability value of the item.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaItemStack")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "The durability value")),
+                true);
+    
+        LuaDocRegistry.addFunction("LuaItemStack", "setDurability", "Sets the durability of the item.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaItemStack"),
+                        new LuaDocRegistry.Param("durability", "number")),
+                null,
+                true);
+    
+        LuaDocRegistry.addFunction("LuaItemStack", "getData",
+                "Returns data for the item if available (e.g., wool color).",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaItemStack")),
+                Arrays.asList(new LuaDocRegistry.Return("table|string", "A table with data or a message if unavailable")),
+                true);
+    
         LuaDocRegistry.addFunction("LuaItemStack", "setData", "Sets data on the item, like color for wool blocks.",
-                Arrays.asList(new LuaDocRegistry.Param("data", "table")),
-                null);
-    }
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaItemStack"),
+                        new LuaDocRegistry.Param("data", "table")),
+                null,
+                true);
+    }    
 }

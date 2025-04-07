@@ -11,6 +11,9 @@ Vector3 = {}
 ---@class storage
 storage = {}
 
+---@class mc
+mc = {}
+
 ---@class LuaPlayer
 local LuaPlayer = {}
 
@@ -54,14 +57,29 @@ function storage.applySaveData(key, value) end
 ---@return string|table|nil @The stored value, or nil if not found
 function storage.getSavedData(key) end
 
----@class mc
-local mc = {}
+---Returns a world by its name.
+---@param worldName string
+---@return LuaWorld @LuaWorld table
+function mc.getWorld(worldName) end
 
----Spawns an entity at a location or at a player's position.
+---Returns the LuaCraftBeta plugin version.
+---@return string @Version string
+function mc.getVersion() end
+
+---Returns the LuaJ interpreter version.
+---@return string @LuaJ version
+function mc.getLuaJVersion() end
+
+---Returns the number of loaded Lua scripts.
+---@return number @Loaded script count
+function mc.getLoadedScriptCount() end
+
+---Spawns an entity in the given world at a position or a player's location.
 ---@param entityName string
----@param positionOrPlayer Vector3|string
+---@param world LuaWorld|string
+---@param target Vector3|string
 ---@return table @The spawned LuaEntity table
-function mc.summon(entityName, positionOrPlayer) end
+function mc.summon(entityName, world, target) end
 
 ---Returns all entities in the given world.
 ---@param world table
@@ -76,17 +94,12 @@ function mc.getEntitiesByType(world, entityType) end
 
 ---Gets a player by name if they are online. Returns a LuaPlayer or error table.
 ---@param name string
----@return table @LuaPlayer or error table
+---@return LuaPlayer? @LuaPlayer object or error table if not found
 function mc.getPlayer(name) end
 
----Returns a list of online player names.
----@return string[] @Array of online player names
+---Returns a list of online players as LuaPlayer tables.
+---@return LuaPlayer[] @Array of LuaPlayer objects
 function mc.getOnlinePlayers() end
-
----Returns a world by its name.
----@param worldName string
----@return table @LuaWorld table
-function mc.getWorld(worldName) end
 
 ---Returns a material by its numeric ID.
 ---@param id integer
@@ -103,315 +116,372 @@ function mc.broadcast(message) end
 function mc.sendMessage(playerName, message) end
 
 ---Returns the name of the player.
----@param self LuaPlayer
 ---@return string @The player's name
-function LuaPlayer.getName(self) end
+function LuaPlayer:getName() end
 
 ---Sends a message to the player.
----@param self LuaPlayer
 ---@param message string
-function LuaPlayer.sendMessage(self, message) end
+function LuaPlayer:sendMessage(message) end
 
 ---Returns the direction the player is looking as a Vector3.
----@param self LuaPlayer
 ---@return Vector3 @Direction vector the player is facing
-function LuaPlayer.getLookDirection(self) end
+function LuaPlayer:getLookDirection() end
 
 ---Teleports the player to the given Vector3 position.
----@param self LuaPlayer
 ---@param position Vector3
-function LuaPlayer.teleport(self, position) end
+function LuaPlayer:teleport(position) end
 
 ---Gets the player's current health.
----@param self LuaPlayer
 ---@return number @Current health value
-function LuaPlayer.getHealth(self) end
+function LuaPlayer:getHealth() end
 
 ---Sets the player's health, clamped between 0 and 20.
----@param self LuaPlayer
 ---@param health number
-function LuaPlayer.setHealth(self, health) end
+function LuaPlayer:setHealth(health) end
 
 ---Checks if the player is an operator.
----@param self LuaPlayer
 ---@return boolean @True if the player is op
-function LuaPlayer.isOp(self) end
+function LuaPlayer:isOp() end
 
 ---Sets the player's operator status.
----@param self LuaPlayer
 ---@param value boolean
-function LuaPlayer.setOp(self, value) end
+function LuaPlayer:setOp(value) end
 
 ---Kicks the player with the given reason.
----@param self LuaPlayer
 ---@param reason string
-function LuaPlayer.kick(self, reason) end
+function LuaPlayer:kick(reason) end
+
+---Returns the entity type name for compatibility with LuaEntity.
+---@return string @Always returns 'player'
+function LuaPlayer:getType() end
 
 ---Gets the item in the player's hand.
----@param self LuaPlayer
----@return string @Item in format 'material:amount' or nil
-function LuaPlayer.getItemInHand(self) end
+---@return LuaItemStack|nil @LuaItemStack table or nil if empty
+function LuaPlayer:getItemInHand() end
 
 ---Sets the item in the player's hand.
----@param self LuaPlayer
 ---@param material string
 ---@param amount number
-function LuaPlayer.setItemInHand(self, material, amount) end
+function LuaPlayer:setItemInHand(material, amount) end
 
 ---Gives the player an item.
----@param self LuaPlayer
 ---@param material string
 ---@param amount number
-function LuaPlayer.giveItem(self, material, amount) end
+function LuaPlayer:giveItem(material, amount) end
 
 ---Returns the player's current position as a Vector3.
----@param self LuaPlayer
 ---@return Vector3 @Player position vector
-function LuaPlayer.getLocation(self) end
+function LuaPlayer:getLocation() end
 
 ---Gets the dimension name the player is currently in.
----@param self LuaPlayer
----@return string @Dimension name (overworld, nether, the_end, unknown)
-function LuaPlayer.getDimension(self) end
+---@return string @Dimension name (overworld, nether, unknown)
+function LuaPlayer:getDimension() end
 
 ---Gets the LuaWorld object the player is in.
----@param self LuaPlayer
 ---@return LuaWorld @The world the player is currently in
-function LuaPlayer.getWorld(self) end
+function LuaPlayer:getWorld() end
+
+---Returns the player's current velocity as a Vector3.
+---@return Vector3 @Velocity vector
+function LuaPlayer:getVelocity() end
+
+---Sets the player's velocity using a Vector3.
+---@param velocity Vector3
+function LuaPlayer:setVelocity(velocity) end
+
+---Fully restores the player's health.
+function LuaPlayer:heal() end
+
+---Sets the player's health, clamped between 0 and 20.
+---@param health number
+function LuaPlayer:setHealth(health) end
+
+---Returns the maximum health value for the player (always 20 in Beta).
+---@return number @Maximum health value
+function LuaPlayer:getMaxHealth() end
+
+---Returns whether the player is alive (health > 0).
+---@return boolean @True if the player is alive
+function LuaPlayer:isAlive() end
+
+---Damages the player by the given amount.
+---@param amount number
+function LuaPlayer:damage(amount) end
+
+---Kills the player by setting their health to 0.
+function LuaPlayer:kill() end
 
 ---Sets the vector's coordinates.
 ---@param x number
 ---@param y number
 ---@param z number
-function Vector3.set(x, y, z) end
+function Vector3:set(x, y, z) end
 
 ---Returns a copy of this vector.
 ---@return Vector3 @Cloned vector
-function Vector3.clone() end
+function Vector3:clone() end
 
 ---Returns the length (magnitude) of the vector.
 ---@return number @Length of the vector
-function Vector3.length() end
+function Vector3:length() end
 
 ---Normalizes this vector to a unit vector.
 ---@return Vector3 @Normalized vector
-function Vector3.normalize() end
+function Vector3:normalize() end
 
 ---Returns the name of the world.
----@param self LuaWorld
----@return string
-function LuaWorld.getName(self) end
+---@return string @The name of the world
+function LuaWorld:getName() end
 
 ---Gets the current time in the world.
----@param self LuaWorld
----@return number
-function LuaWorld.getTime(self) end
+---@return number @Current world time
+function LuaWorld:getTime() end
 
 ---Sets the current time in the world.
----@param self LuaWorld
 ---@param time number
-function LuaWorld.setTime(self, time) end
+function LuaWorld:setTime(time) end
 
 ---Returns whether the world is currently experiencing a storm.
----@param self LuaWorld
----@return boolean
-function LuaWorld.hasStorm(self) end
+---@return boolean @True if storming
+function LuaWorld:hasStorm() end
 
 ---Enables or disables stormy weather in the world.
----@param self LuaWorld
 ---@param value boolean
-function LuaWorld.setStorm(self, value) end
+function LuaWorld:setStorm(value) end
 
 ---Strikes lightning at the given position.
----@param self LuaWorld
 ---@param position Vector3
-function LuaWorld.strikeLightning(self, position) end
+function LuaWorld:strikeLightning(position) end
 
 ---Creates an explosion at a location.
----@param self LuaWorld
 ---@param position Vector3
 ---@param power number
-function LuaWorld.createExplosion(self, position, power) end
+function LuaWorld:createExplosion(position, power) end
 
 ---Returns the seed used to generate the world.
----@param self LuaWorld
----@return number
-function LuaWorld.getSeed(self) end
+---@return number @World generation seed
+function LuaWorld:getSeed() end
 
 ---Returns a list of players in this world.
----@param self LuaWorld
 ---@return table @Array of LuaPlayer objects
-function LuaWorld.getPlayers(self) end
+function LuaWorld:getPlayers() end
 
 ---Returns all entities in the world.
----@param self LuaWorld
 ---@return table @Array of LuaEntity objects
-function LuaWorld.getEntities(self) end
+function LuaWorld:getEntities() end
 
 ---Sets a block at a given location to the specified type and optional data.
----@param self LuaWorld
 ---@param position Vector3
 ---@param blockType string
 ---@param data number?
-function LuaWorld.setBlock(self, position, blockType, data) end
+function LuaWorld:setBlock(position, blockType, data) end
 
----Returns the block at the given location.
----@param self LuaWorld
+---Returns the block at the given location. May return nil if the position is invalid or the block could not be resolved.
 ---@param position Vector3
----@return table @LuaBlock representing the block
-function LuaWorld.getBlockAt(self, position) end
+---@return LuaBlock? @LuaBlock representing the block, or nil if invalid
+function LuaWorld:getBlockAt(position) end
+
+---Returns whether it is currently raining in the world.
+---@return boolean @True if it is raining
+function LuaWorld:isRaining() end
+
+---Returns the dimension name the world represents.
+---@return string @One of: 'overworld', 'nether', or 'unknown'
+function LuaWorld:getDimension() end
 
 ---Gets the numeric ID of the material.
 ---@return number @The Bukkit material ID
-function LuaMaterial.getId() end
+function LuaMaterial:getId() end
 
 ---Returns the maximum stack size for this material.
 ---@return number
-function LuaMaterial.getMaxStackSize() end
+function LuaMaterial:getMaxStackSize() end
 
 ---Returns the max durability of the material.
 ---@return number
-function LuaMaterial.getMaxDurability() end
+function LuaMaterial:getMaxDurability() end
 
 ---Gets the lowercase name of the material.
 ---@return string
-function LuaMaterial.getName() end
+function LuaMaterial:getName() end
 
 ---Returns true if this material is a placeable block.
 ---@return boolean
-function LuaMaterial.isBlock() end
+function LuaMaterial:isBlock() end
 
 ---Gets the type of the item as a lowercase string.
 ---@return string @The material type
-function LuaItemStack.getType() end
+function LuaItemStack:getType() end
 
 ---Sets the item type using a string name.
 ---@param materialName string
-function LuaItemStack.setType(materialName) end
+function LuaItemStack:setType(materialName) end
 
 ---Returns the number of items in the stack.
 ---@return number @The stack size
-function LuaItemStack.getAmount() end
+function LuaItemStack:getAmount() end
 
 ---Sets the number of items in the stack.
 ---@param amount number
-function LuaItemStack.setAmount(amount) end
+function LuaItemStack:setAmount(amount) end
 
 ---Gets the durability value of the item.
 ---@return number @The durability value
-function LuaItemStack.getDurability() end
+function LuaItemStack:getDurability() end
 
 ---Sets the durability of the item.
 ---@param durability number
-function LuaItemStack.setDurability(durability) end
+function LuaItemStack:setDurability(durability) end
 
 ---Returns data for the item if available (e.g., wool color).
 ---@return table|string @A table with data or a message if unavailable
-function LuaItemStack.getData() end
+function LuaItemStack:getData() end
 
 ---Sets data on the item, like color for wool blocks.
 ---@param data table
-function LuaItemStack.setData(data) end
+function LuaItemStack:setData(data) end
 
 ---Returns the entity type as a lowercase name.
 ---@return string @Entity type name
-function LuaEntity.getType() end
+function LuaEntity:getType() end
 
 ---Returns the unique entity ID.
 ---@return number @Entity ID
-function LuaEntity.getId() end
+function LuaEntity:getId() end
+
+---Returns the name of the entity. If the entity is a player, this is their username. Otherwise, it falls back to the type name.
+---@return string @The name or type name of the entity
+function LuaEntity:getName() end
 
 ---Returns whether the entity is dead.
 ---@return boolean @True if dead
-function LuaEntity.isDead() end
+function LuaEntity:isDead() end
+
+---Gets the entity's current velocity vector.
+---@return Vector3 @Velocity vector
+function LuaEntity:getVelocity() end
+
+---Sets the entity's velocity.
+---@param velocity Vector3
+function LuaEntity:setVelocity(velocity) end
 
 ---Sets the fire ticks duration.
 ---@param ticks number
-function LuaEntity.setFireTicks(ticks) end
+function LuaEntity:setFireTicks(ticks) end
 
 ---Teleports the entity using a Vector3 table.
 ---@param position Vector3
-function LuaEntity.teleport(position) end
+---@return nil @Always returns nil
+function LuaEntity:teleport(position) end
 
 ---Returns the entity's current location.
 ---@return Vector3 @Entity position
-function LuaEntity.getLocation() end
+function LuaEntity:getLocation() end
 
 ---Returns all entities in the chunk this entity is currently in.
 ---@return table @Array of LuaEntity tables
-function LuaEntity.getEntitiesInChunk() end
+function LuaEntity:getEntitiesInChunk() end
 
 ---Returns whether the entity is empty (e.g. vehicle without passenger).
 ---@return boolean @True if empty
-function LuaEntity.isEmpty() end
+function LuaEntity:isEmpty() end
+
+---Returns the world the entity is in.
+---@return LuaWorld @The world the entity belongs to
+function LuaEntity:getWorld() end
 
 ---Ejects any passenger from the entity.
 ---@return boolean @True if something was ejected
-function LuaEntity.eject() end
+function LuaEntity:eject() end
 
 ---Removes the entity from the world.
-function LuaEntity.remove() end
+function LuaEntity:remove() end
+
+---Returns true if the entity is a player and they are an operator.
+---@return boolean @True if the player is op; false otherwise
+function LuaEntity:isOp() end
+
+---Returns the current health of the entity if it's a living entity.
+---@return number @Current health, or -1 if not a living entity
+function LuaEntity:getHealth() end
+
+---Returns the maximum health value for the entity. Always 20 for now.
+---@return number @Max health (20)
+function LuaEntity:getMaxHealth() end
+
+---Returns true if the entity is a living entity and has health greater than 0.
+---@return boolean @True if alive, false otherwise
+function LuaEntity:isAlive() end
+
+---Fully restores the entity's health to 20, if it's a living entity.
+function LuaEntity:heal() end
+
+---Damages the entity by the given amount, if it's a living entity.
+---@param amount number
+function LuaEntity:damage(amount) end
+
+---Instantly sets the entity's health to 0, if it's a living entity.
+function LuaEntity:kill() end
+
+---Returns the block's material name in lowercase.
+---@return string @Block material name
+function LuaBlock:getType() end
+
+---Returns the block's type ID (legacy numeric ID).
+---@return number @Legacy block ID
+function LuaBlock:getTypeId() end
+
+---Sets the block type using a material name.
+---@param material string
+function LuaBlock:setType(material) end
+
+---Sets the block's legacy numeric ID.
+---@param id number
+function LuaBlock:setTypeId(id) end
+
+---Sets the block's legacy data value (0-15).
+---@param data number
+function LuaBlock:setData(data) end
+
+---Gets the block's legacy data value.
+---@return number @Data value
+function LuaBlock:getData() end
 
 ---Returns the block's position as a Vector3.
----@return Vector3 @Block position vector
-function LuaBlock.getPosition() end
-
----Gets the block's material name.
----@return string @Block material name
-function LuaBlock.getType() end
-
----Gets the block's legacy type ID.
----@return number @Type ID
-function LuaBlock.getTypeId() end
-
----Sets the block type by name.
----@param materialName string
-function LuaBlock.setType(materialName) end
-
----Sets the block type using a numeric ID.
----@param id number
----@return boolean @True if the block type was set successfully
-function LuaBlock.setTypeId(id) end
-
----Sets the block's data byte.
----@param byte number
-function LuaBlock.setData(byte) end
+---@return Vector3 @Block position
+function LuaBlock:getPosition() end
 
 ---Gets the block's X coordinate.
----@return number @X position
-function LuaBlock.getX() end
+---@return number @X coordinate
+function LuaBlock:getX() end
 
 ---Gets the block's Y coordinate.
----@return number @Y position
-function LuaBlock.getY() end
+---@return number @Y coordinate
+function LuaBlock:getY() end
 
 ---Gets the block's Z coordinate.
----@return number @Z position
-function LuaBlock.getZ() end
+---@return number @Z coordinate
+function LuaBlock:getZ() end
 
----Returns whether the block is considered air or empty.
----@return boolean @True if empty
-function LuaBlock.isEmpty() end
+---Returns true if the block is air.
+---@return boolean @True if block is air
+function LuaBlock:isEmpty() end
 
----Returns whether the block is a liquid.
----@return boolean @True if liquid
-function LuaBlock.isLiquid() end
+---Returns true if the block is a liquid.
+---@return boolean @True if block is water or lava
+function LuaBlock:isLiquid() end
 
----Gets the block's data byte.
----@return number @Data byte
-function LuaBlock.getData() end
+---Returns the light level at this block.
+---@return number @Light level from 0 to 15
+function LuaBlock:getLightLevel() end
 
----Returns the block's current light level.
----@return number @Light level (0-15)
-function LuaBlock.getLightLevel() end
+---Gets the block relative to this one in a given direction.
+---@param face string
+---@return LuaBlock @Block in the given direction
+function LuaBlock:getRelative(face) end
 
----Gets the relative block in a given direction.
----@param faceName string
----@return LuaBlock @The block relative to this one
-function LuaBlock.getRelative(faceName) end
-
----Checks if a specific face of the block is powered.
----@param faceName string
----@return boolean @True if powered
-function LuaBlock.isBlockFacePowered(faceName) end
+---Checks if the specified face of this block is powered.
+---@param face string
+---@return boolean @True if that face is powered
+function LuaBlock:isBlockFacePowered(face) end
 

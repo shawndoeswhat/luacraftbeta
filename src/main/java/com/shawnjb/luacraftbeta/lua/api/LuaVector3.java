@@ -154,30 +154,31 @@ public class LuaVector3 {
                 "set",
                 "Sets the vector's coordinates.",
                 Arrays.asList(
+                        new LuaDocRegistry.Param("self", "Vector3"),
                         new LuaDocRegistry.Param("x", "number"),
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
-                null);
+                null, true);
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "clone",
                 "Returns a copy of this vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Cloned vector")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Cloned vector")), true);
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "length",
                 "Returns the length (magnitude) of the vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Length of the vector")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Length of the vector")), true);
 
         LuaDocRegistry.addFunction(
                 "Vector3",
                 "normalize",
                 "Normalizes this vector to a unit vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Normalized vector")));
+                Arrays.asList(new LuaDocRegistry.Param("self", "Vector3")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Normalized vector")), true);
     }
 }

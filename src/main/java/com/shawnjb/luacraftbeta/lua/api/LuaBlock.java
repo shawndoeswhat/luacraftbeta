@@ -64,7 +64,8 @@ public class LuaBlock {
             @Override
             public LuaValue call(LuaValue self, LuaValue id) {
                 if (id.isnumber()) {
-                    return LuaValue.valueOf(block.setTypeId(id.toint()));
+                    block.setTypeId(id.toint());
+                    return LuaValue.NIL;
                 }
                 return LuaValue.valueOf("Usage: setTypeId(id)");
             }
@@ -163,57 +164,91 @@ public class LuaBlock {
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaBlock");
 
-        LuaDocRegistry.addFunction("LuaBlock", "getPosition",
-                "Returns the block's position as a Vector3.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Block position vector")));
+        LuaDocRegistry.addFunction("LuaBlock", "getType", "Returns the block's material name in lowercase.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "Block material name")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getType", "Gets the block's material name.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("string", "Block material name")));
+        LuaDocRegistry.addFunction("LuaBlock", "getTypeId", "Returns the block's type ID (legacy numeric ID).",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Legacy block ID")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getTypeId", "Gets the block's legacy type ID.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Type ID")));
+        LuaDocRegistry.addFunction("LuaBlock", "setType", "Sets the block type using a material name.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaBlock"),
+                        new LuaDocRegistry.Param("material", "string")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "setType", "Sets the block type by name.",
-                Arrays.asList(new LuaDocRegistry.Param("materialName", "string")),
-                null);
+        LuaDocRegistry.addFunction("LuaBlock", "setTypeId", "Sets the block's legacy numeric ID.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaBlock"),
+                        new LuaDocRegistry.Param("id", "number")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "setTypeId", "Sets the block type using a numeric ID.",
-                Arrays.asList(new LuaDocRegistry.Param("id", "number")),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if the block type was set successfully")));
+        LuaDocRegistry.addFunction("LuaBlock", "setData", "Sets the block's legacy data value (0-15).",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaBlock"),
+                        new LuaDocRegistry.Param("data", "number")),
+                null,
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "setData", "Sets the block's data byte.",
-                Arrays.asList(new LuaDocRegistry.Param("byte", "number")),
-                null);
+        LuaDocRegistry.addFunction("LuaBlock", "getData", "Gets the block's legacy data value.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Data value")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getX", "Gets the block's X coordinate.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "X position")));
-        LuaDocRegistry.addFunction("LuaBlock", "getY", "Gets the block's Y coordinate.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Y position")));
-        LuaDocRegistry.addFunction("LuaBlock", "getZ", "Gets the block's Z coordinate.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Z position")));
+        LuaDocRegistry.addFunction("LuaBlock", "getPosition", "Returns the block's position as a Vector3.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Block position")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "isEmpty", "Returns whether the block is considered air or empty.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if empty")));
+        LuaDocRegistry.addFunction("LuaBlock", "getX", "Gets the block's X coordinate.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "X coordinate")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "isLiquid", "Returns whether the block is a liquid.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if liquid")));
+        LuaDocRegistry.addFunction("LuaBlock", "getY", "Gets the block's Y coordinate.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Y coordinate")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getData", "Gets the block's data byte.", Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Data byte")));
+        LuaDocRegistry.addFunction("LuaBlock", "getZ", "Gets the block's Z coordinate.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Z coordinate")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getLightLevel", "Returns the block's current light level.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Light level (0-15)")));
+        LuaDocRegistry.addFunction("LuaBlock", "isEmpty", "Returns true if the block is air.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if block is air")),
+                true);
 
-        LuaDocRegistry.addFunction("LuaBlock", "getRelative", "Gets the relative block in a given direction.",
-                Arrays.asList(new LuaDocRegistry.Param("faceName", "string")),
-                Arrays.asList(new LuaDocRegistry.Return("LuaBlock", "The block relative to this one")));
+        LuaDocRegistry.addFunction("LuaBlock", "isLiquid", "Returns true if the block is a liquid.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if block is water or lava")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaBlock", "getLightLevel", "Returns the light level at this block.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Light level from 0 to 15")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaBlock", "getRelative",
+                "Gets the block relative to this one in a given direction.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaBlock"),
+                        new LuaDocRegistry.Param("face", "string")),
+                Arrays.asList(new LuaDocRegistry.Return("LuaBlock", "Block in the given direction")),
+                true);
 
         LuaDocRegistry.addFunction("LuaBlock", "isBlockFacePowered",
-                "Checks if a specific face of the block is powered.",
-                Arrays.asList(new LuaDocRegistry.Param("faceName", "string")),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if powered")));
+                "Checks if the specified face of this block is powered.",
+                Arrays.asList(
+                        new LuaDocRegistry.Param("self", "LuaBlock"),
+                        new LuaDocRegistry.Param("face", "string")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if that face is powered")),
+                true);
     }
 }

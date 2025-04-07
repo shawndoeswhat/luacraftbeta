@@ -38,7 +38,7 @@ public class LuaManager {
             LuaValue chunk = globals.load(reader, scriptFile.getName(), globals);
             chunk.call();
 
-            plugin.getLogger().info("Successfully loaded and executed script: " + scriptFile.getName());
+            // plugin.getLogger().info("Successfully loaded and executed script: " + scriptFile.getName());
         } catch (IOException e) {
             plugin.getLogger().severe("Error reading script file: " + scriptFile.getName());
             e.printStackTrace();
@@ -52,9 +52,8 @@ public class LuaManager {
         try {
             LuaValue chunk = globals.load(script, "inlineScript", globals);
             chunk.call();
-
             globals.set("playerName", LuaValue.valueOf(playerName));
-            plugin.getLogger().info("Successfully executed inline Lua script.");
+            // plugin.getLogger().info("Successfully executed inline Lua script.");
         } catch (LuaError luaError) {
             plugin.getLogger().severe("Lua execution error in inline script.");
             luaError.printStackTrace();
@@ -108,8 +107,7 @@ public class LuaManager {
 
             returned.call(luaPlayer);
 
-            plugin.getLogger().info("Successfully executed script: " + scriptPath);
-
+            // plugin.getLogger().info("Successfully executed script: " + scriptPath);
         } catch (IOException e) {
             plugin.getLogger().severe("Error reading script file: " + scriptPath);
             e.printStackTrace();
@@ -156,7 +154,7 @@ public class LuaManager {
     
             if (returned.isfunction()) {
                 returned.invoke(args);
-                plugin.getLogger().info("Successfully executed script with args: " + matchedFile.getName());
+                // plugin.getLogger().info("Successfully executed script with args: " + matchedFile.getName());
             } else if (!isAutorun) {
                 plugin.getLogger().warning("Script " + matchedFile.getName() + " did not return a function.");
             }

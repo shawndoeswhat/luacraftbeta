@@ -1,5 +1,6 @@
 package com.shawnjb.luacraftbeta;
 
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -7,17 +8,21 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
-import com.legacyminecraft.poseidon.event.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 import org.luaj.vm2.LuaValue;
+
+import com.shawnjb.luacraftbeta.lua.api.LuaBlock;
 import com.shawnjb.luacraftbeta.lua.api.LuaEntity;
 import com.shawnjb.luacraftbeta.lua.api.LuaPlayer;
+import com.shawnjb.luacraftbeta.lua.api.LuaWorld;
 
 public class LuaCraftListener implements Listener {
     private final LuaCraftBetaPlugin plugin;
@@ -32,27 +37,13 @@ public class LuaCraftListener implements Listener {
         plugin.getLuaManager().executeScriptWithArgsInsensitive(fileName, true, args);
     }
 
-    public void handlePoseidonPlayerDeath(PlayerDeathEvent event) {
-        if (config.isAutoLoadScripts()) {
-            String deathMsg = event.getDeathMessage();
-            if (deathMsg == null) deathMsg = "Player died.";
-
-            LuaPlayer luaPlayer = new LuaPlayer((Player) event.getEntity());
-
-            tryExecuteScript("playerdied.lua",
-                luaPlayer.toLuaTable(),
-                LuaValue.valueOf(deathMsg)
-            );
-        }
-    }    
-
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (config.isAutoLoadScripts()) {
             LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
             tryExecuteScript("playerjoining.lua", luaPlayer.toLuaTable());
         }
-    }    
+    }
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
@@ -60,7 +51,7 @@ public class LuaCraftListener implements Listener {
             LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
             tryExecuteScript("playerquitting.lua", luaPlayer.toLuaTable());
         }
-    }    
+    }
 
     @EventHandler
     public void onCreatureSpawn(CreatureSpawnEvent event) {
@@ -76,30 +67,40 @@ public class LuaCraftListener implements Listener {
 
     @EventHandler
     public void onWeatherChange(WeatherChangeEvent event) {
-        if (config.isAutoLoadScripts()) {
-            try {
-                LuaValue worldName = LuaValue.valueOf(event.getWorld().getName());
-                LuaValue toState = LuaValue.valueOf(event.toWeatherState()); // true = rain starting
+        if (!config.isAutoLoadScripts())
+            return;
 
-                tryExecuteScript("weatherchanged.lua", worldName, toState);
-            } catch (Exception e) {
-                plugin.getLogger().warning("Failed to execute weatherchanged.lua: " + e.getMessage());
-            }
+        try {
+            LuaWorld luaWorld = new LuaWorld(event.getWorld());
+            LuaValue toState = LuaValue.valueOf(event.toWeatherState());
+
+            tryExecuteScript("weatherchanged.lua",
+                    luaWorld.toLuaTable(),
+                    toState);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to execute weatherchanged.lua: " + e.getMessage());
         }
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (config.isAutoLoadScripts()) {
-            LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
+        if (!config.isAutoLoadScripts())
+            return;
+
+        LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
+
+        if (event.getClickedBlock() != null) {
+            LuaBlock luaBlock = new LuaBlock(event.getClickedBlock());
 
             tryExecuteScript("playerinteract.lua",
                     luaPlayer.toLuaTable(),
                     LuaValue.valueOf(event.getAction().name()),
-                    LuaValue.valueOf(
-                            event.getClickedBlock() != null
-                                    ? event.getClickedBlock().getType().name()
-                                    : "AIR"));
+                    luaBlock.toLuaTable());
+        } else {
+            tryExecuteScript("playerinteract.lua",
+                    luaPlayer.toLuaTable(),
+                    LuaValue.valueOf(event.getAction().name()),
+                    LuaValue.NIL);
         }
     }
 
@@ -136,8 +137,23 @@ public class LuaCraftListener implements Listener {
         if (config.isAutoLoadScripts()) {
             try {
                 LuaEntity entity = new LuaEntity(event.getEntity());
+                LuaValue attackerValue;
+
+                if (event instanceof EntityDamageByEntityEvent) {
+                    Entity damager = ((EntityDamageByEntityEvent) event).getDamager();
+
+                    if (damager instanceof Player) {
+                        attackerValue = new LuaPlayer((Player) damager).toLuaTable();
+                    } else {
+                        attackerValue = new LuaEntity(damager).toLuaTable();
+                    }
+                } else {
+                    attackerValue = new LuaWorld(event.getEntity().getWorld()).toLuaTable();
+                }
+
                 tryExecuteScript("entitydamaged.lua",
-                        LuaValue.userdataOf(entity),
+                        attackerValue,
+                        entity.toLuaTable(),
                         LuaValue.valueOf(event.getDamage()),
                         LuaValue.valueOf(event.getCause().name()));
             } catch (Exception e) {
@@ -155,18 +171,26 @@ public class LuaCraftListener implements Listener {
                     LuaValue.valueOf(event.getMessage()));
         }
     }
-    
+
     @EventHandler
-    public void onEntityDeath(org.bukkit.event.entity.EntityDeathEvent event) {
-        if (!(event.getEntity() instanceof Player)) return;
-    
-        Player player = (Player) event.getEntity();
-        LuaPlayer luaPlayer = new LuaPlayer(player);
-    
-        String deathMsg = "rest in peace, " + player.getName();
-        tryExecuteScript("playerdied.lua",
-            luaPlayer.toLuaTable(),
-            LuaValue.valueOf(deathMsg)
-        );
+    public void onEntityDeath(EntityDeathEvent event) {
+        if (!config.isAutoLoadScripts())
+            return;
+
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            LuaPlayer luaPlayer = new LuaPlayer(player);
+
+            tryExecuteScript("playerdied.lua",
+                    luaPlayer.toLuaTable());
+
+            tryExecuteScript("entitydeath.lua",
+                    LuaValue.userdataOf(luaPlayer));
+        } else {
+            LuaEntity luaEntity = new LuaEntity(event.getEntity());
+
+            tryExecuteScript("entitydeath.lua",
+                    LuaValue.userdataOf(luaEntity));
+        }
     }
 }

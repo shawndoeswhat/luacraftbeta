@@ -15,11 +15,7 @@ public class LuaBindings {
     }
 
     public void registerAll() {
-        BindingCore.register(globals); // print, wait, Vector3
-        BindingChat.register(globals); // mc.broadcast, mc.sendMessage
-        BindingPlayers.register(globals); // mc.getPlayer, mc.getOnlinePlayers
-        BindingEntities.register(globals); // mc.summon
-        BindingWorld.register(globals); // mc.getWorld, world:setTime()
-        BindingMaterials.register(globals); // mc.getMaterial, mc.isBlockSolid, etc.
+        BindingCore.register(globals);
+        BindingMC.register(globals);
     }
 }

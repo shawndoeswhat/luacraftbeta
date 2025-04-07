@@ -33,12 +33,19 @@ public class LuaDocRegistry {
         public final String description;
         public final List<Param> params;
         public final List<Return> returns;
+        public final boolean isMethod;
 
-        public FunctionDoc(String name, String description, List<Param> params, List<Return> returns) {
+        public FunctionDoc(String name, String description, List<Param> params, List<Return> returns,
+                boolean isMethod) {
             this.name = name;
             this.description = description;
             this.params = params != null ? params : new ArrayList<>();
             this.returns = returns != null ? returns : new ArrayList<>();
+            this.isMethod = isMethod;
+        }
+
+        public FunctionDoc(String name, String description, List<Param> params, List<Return> returns) {
+            this(name, description, params, returns, false);
         }
     }
 
@@ -63,6 +70,12 @@ public class LuaDocRegistry {
             List<Return> returns) {
         functions.computeIfAbsent(category, k -> new ArrayList<>())
                 .add(new FunctionDoc(name, description, params, returns));
+    }
+
+    public static void addFunction(String category, String name, String description, List<Param> params,
+            List<Return> returns, boolean isMethod) {
+        functions.computeIfAbsent(category, k -> new ArrayList<>())
+                .add(new FunctionDoc(name, description, params, returns, isMethod));
     }
 
     public static void addField(String className, String fieldName, String fieldType, String description) {

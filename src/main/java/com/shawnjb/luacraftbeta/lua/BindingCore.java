@@ -50,27 +50,25 @@ public class BindingCore {
             }
         });
 
-        globals.set("Vector3", new LuaTable() {
-            {
-                set("new", new VarArgFunction() {
-                    @Override
-                    public Varargs invoke(Varargs args) {
-                        if (args.narg() >= 3 &&
-                                args.arg(1).isnumber() &&
-                                args.arg(2).isnumber() &&
-                                args.arg(3).isnumber()) {
+        globals.set("Vector3", new LuaTable() {{
+            set("new", new VarArgFunction() {
+                @Override
+                public Varargs invoke(Varargs args) {
+                    if (args.narg() >= 3 &&
+                            args.arg(1).isnumber() &&
+                            args.arg(2).isnumber() &&
+                            args.arg(3).isnumber()) {
 
-                            double x = args.arg(1).todouble();
-                            double y = args.arg(2).todouble();
-                            double z = args.arg(3).todouble();
+                        double x = args.arg(1).todouble();
+                        double y = args.arg(2).todouble();
+                        double z = args.arg(3).todouble();
 
-                            return new LuaVector3(x, y, z).toLuaTable();
-                        }
-                        return LuaValue.error("Usage: Vector3.new(x, y, z)");
+                        return new LuaVector3(x, y, z).toLuaTable();
                     }
-                });
-            }
-        });
+                    return LuaValue.error("Usage: Vector3.new(x, y, z)");
+                }
+            });
+        }});
 
         globals.set("storage", LuaDataStorage.createStorageTable());
     }
@@ -78,23 +76,17 @@ public class BindingCore {
     public static void registerDocs() {
         LuaDocRegistry.addClass("Vector3");
 
-        LuaDocRegistry.addFunction(
-                "core",
-                "print",
+        LuaDocRegistry.addFunction("core", "print",
                 "Prints a message to the server chat prefixed with [Lua].",
                 Arrays.asList(new Param("message", "string")),
                 null);
 
-        LuaDocRegistry.addFunction(
-                "core",
-                "wait",
+        LuaDocRegistry.addFunction("core", "wait",
                 "Yields the coroutine for a number of seconds, then resumes.",
                 Arrays.asList(new Param("seconds", "number")),
                 null);
 
-        LuaDocRegistry.addFunction(
-                "core",
-                "Vector3.new",
+        LuaDocRegistry.addFunction("core", "Vector3.new",
                 "Creates a new 3D vector with x, y, z coordinates.",
                 Arrays.asList(
                         new Param("x", "number"),
@@ -104,18 +96,14 @@ public class BindingCore {
 
         LuaDocRegistry.addGlobalClass("storage");
 
-        LuaDocRegistry.addFunction(
-                "storage",
-                "applySaveData",
+        LuaDocRegistry.addFunction("storage", "applySaveData",
                 "Saves a key-value pair to persistent storage. Tables are encoded as JSON.",
                 Arrays.asList(
                         new Param("key", "string"),
                         new Param("value", "string|table")),
                 null);
 
-        LuaDocRegistry.addFunction(
-                "storage",
-                "getSavedData",
+        LuaDocRegistry.addFunction("storage", "getSavedData",
                 "Retrieves previously saved data for the given key.",
                 Arrays.asList(new Param("key", "string")),
                 Arrays.asList(new Return("string|table|nil", "The stored value, or nil if not found")));

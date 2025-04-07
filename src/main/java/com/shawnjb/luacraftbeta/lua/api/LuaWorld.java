@@ -180,6 +180,26 @@ public class LuaWorld {
             }
         });
 
+        t.set("isRaining", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(world.hasStorm() && world.getWeatherDuration() > 0);
+            }
+        });
+        
+        t.set("getDimension", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                String name = world.getName().toLowerCase();
+                if (name.contains("nether")) {
+                    return LuaValue.valueOf("nether");
+                } else if (name.contains("world") || name.contains("overworld")) {
+                    return LuaValue.valueOf("overworld");
+                }
+                return LuaValue.valueOf("unknown");
+            }
+        });
+
         return t;
     }
 
@@ -188,53 +208,63 @@ public class LuaWorld {
 
         LuaDocRegistry.addFunction("LuaWorld", "getName", "Returns the name of the world.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("string", "")));
+                Arrays.asList(new LuaDocRegistry.Return("string", "The name of the world")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "getTime", "Gets the current time in the world.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("number", "")));
+                Arrays.asList(new LuaDocRegistry.Return("number", "Current world time")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "setTime", "Sets the current time in the world.",
                 Arrays.asList(
                         new LuaDocRegistry.Param("self", "LuaWorld"),
                         new LuaDocRegistry.Param("time", "number")),
-                null);
+                null,
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "hasStorm",
                 "Returns whether the world is currently experiencing a storm.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("boolean", "")));
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if storming")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "setStorm", "Enables or disables stormy weather in the world.",
                 Arrays.asList(
                         new LuaDocRegistry.Param("self", "LuaWorld"),
                         new LuaDocRegistry.Param("value", "boolean")),
-                null);
+                null,
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "strikeLightning", "Strikes lightning at the given position.",
                 Arrays.asList(
                         new LuaDocRegistry.Param("self", "LuaWorld"),
                         new LuaDocRegistry.Param("position", "Vector3")),
-                null);
+                null,
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "createExplosion", "Creates an explosion at a location.",
                 Arrays.asList(
                         new LuaDocRegistry.Param("self", "LuaWorld"),
                         new LuaDocRegistry.Param("position", "Vector3"),
                         new LuaDocRegistry.Param("power", "number")),
-                null);
+                null,
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "getSeed", "Returns the seed used to generate the world.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("number", "")));
+                Arrays.asList(new LuaDocRegistry.Return("number", "World generation seed")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "getPlayers", "Returns a list of players in this world.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaPlayer objects")));
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaPlayer objects")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "getEntities", "Returns all entities in the world.",
                 Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
-                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity objects")));
+                Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity objects")),
+                true);
 
         LuaDocRegistry.addFunction("LuaWorld", "setBlock",
                 "Sets a block at a given location to the specified type and optional data.",
@@ -243,12 +273,28 @@ public class LuaWorld {
                         new LuaDocRegistry.Param("position", "Vector3"),
                         new LuaDocRegistry.Param("blockType", "string"),
                         new LuaDocRegistry.Param("data", "number?")),
-                null);
+                null,
+                true);
 
-        LuaDocRegistry.addFunction("LuaWorld", "getBlockAt", "Returns the block at the given location.",
+        LuaDocRegistry.addFunction("LuaWorld", "getBlockAt",
+                "Returns the block at the given location. May return nil if the position is invalid or the block could not be resolved.",
                 Arrays.asList(
                         new LuaDocRegistry.Param("self", "LuaWorld"),
                         new LuaDocRegistry.Param("position", "Vector3")),
-                Arrays.asList(new LuaDocRegistry.Return("table", "LuaBlock representing the block")));
+                Arrays.asList(
+                        new LuaDocRegistry.Return("LuaBlock?", "LuaBlock representing the block, or nil if invalid")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaWorld", "isRaining",
+                "Returns whether it is currently raining in the world.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if it is raining")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaWorld", "getDimension",
+                "Returns the dimension name the world represents.",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaWorld")),
+                Arrays.asList(new LuaDocRegistry.Return("string", "One of: 'overworld', 'nether', or 'unknown'")),
+                true);
     }
 }

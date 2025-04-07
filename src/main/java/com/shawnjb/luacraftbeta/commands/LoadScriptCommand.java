@@ -53,8 +53,7 @@ public class LoadScriptCommand implements CommandExecutor {
             luaManager.executeScript(scriptFile.getAbsolutePath(), playerName, debug);
 
             sender.sendMessage("Successfully loaded script: " + scriptName);
-            plugin.getLogger().info("Successfully loaded script: " + scriptName);
-
+            // plugin.getLogger().info("Successfully loaded script: " + scriptName);
         } catch (Exception e) {
             sender.sendMessage("Error loading script: " + scriptName);
             plugin.getLogger().log(Level.SEVERE, "Error loading script: " + scriptName, e);
