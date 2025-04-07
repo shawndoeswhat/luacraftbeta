@@ -9,12 +9,16 @@ import org.luaj.vm2.LuaValue;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.logging.Level;
 
 import com.shawnjb.luacraftbeta.lua.LuaBindings;
 
 public class LuaManager {
     private final LuaCraftBetaPlugin plugin;
     private final Globals globals;
+    private final Set<String> missingScripts = new HashSet<>();
 
     public LuaManager(LuaCraftBetaPlugin plugin) {
         this.plugin = plugin;
@@ -113,5 +117,58 @@ public class LuaManager {
             plugin.getLogger().severe("Lua execution error in script: " + scriptPath);
             luaError.printStackTrace();
         }
+    }
+
+    public void executeScriptWithArgsInsensitive(String fileName, boolean isAutorun, LuaValue... args) {
+        File scriptsDir = new File(plugin.getConfig().getScriptsDirectory());
+    
+        if (!scriptsDir.exists() || !scriptsDir.isDirectory()) {
+            plugin.getLogger().warning("Scripts directory does not exist or is not a directory: " + scriptsDir.getPath());
+            return;
+        }
+    
+        File[] files = scriptsDir.listFiles();
+        if (files == null) {
+            plugin.getLogger().warning("Failed to list files in scripts directory.");
+            return;
+        }
+    
+        File matchedFile = null;
+        for (File file : files) {
+            if (file.getName().equalsIgnoreCase(fileName)) {
+                matchedFile = file;
+                break;
+            }
+        }
+
+        if (matchedFile == null) {
+            String lower = fileName.toLowerCase();
+            if (!missingScripts.contains(lower)) {
+                plugin.getLogger().warning("Lua script not found (case-insensitive): " + fileName);
+                missingScripts.add(lower);
+            }
+            return;
+        }
+    
+        try (FileReader reader = new FileReader(matchedFile)) {
+            LuaValue chunk = globals.load(reader, matchedFile.getName(), globals);
+            LuaValue returned = chunk.call();
+    
+            if (returned.isfunction()) {
+                returned.invoke(args);
+                plugin.getLogger().info("Successfully executed script with args: " + matchedFile.getName());
+            } else if (!isAutorun) {
+                plugin.getLogger().warning("Script " + matchedFile.getName() + " did not return a function.");
+            }
+    
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Error reading script file: " + matchedFile.getPath(), e);
+        } catch (LuaError luaError) {
+            plugin.getLogger().log(Level.SEVERE, "Lua execution error in script: " + matchedFile.getName(), luaError);
+        }
+    }
+
+    public void notifyScriptCreatedOrModified(String fileName) {
+        missingScripts.remove(fileName.toLowerCase());
     }
 }

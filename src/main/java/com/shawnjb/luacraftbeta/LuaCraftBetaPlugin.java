@@ -50,6 +50,9 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         ScriptDirectoryWatcher scriptWatcher = new ScriptDirectoryWatcher(this);
         scriptWatcher.start();
 
+        LuaCraftListener listener = new LuaCraftListener(this);
+        getServer().getPluginManager().registerEvents(listener, this);
+
         log.info("[" + pluginName + "] Is Loaded, Version: " + pdf.getVersion());
     }
 

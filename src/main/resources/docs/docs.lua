@@ -198,63 +198,68 @@ function Vector3.length() end
 function Vector3.normalize() end
 
 ---Returns the name of the world.
+---@param self LuaWorld
 ---@return string
-function LuaWorld.getName() end
+function LuaWorld.getName(self) end
 
 ---Gets the current time in the world.
+---@param self LuaWorld
 ---@return number
-function LuaWorld.getTime() end
+function LuaWorld.getTime(self) end
 
 ---Sets the current time in the world.
+---@param self LuaWorld
 ---@param time number
-function LuaWorld.setTime(time) end
+function LuaWorld.setTime(self, time) end
 
 ---Returns whether the world is currently experiencing a storm.
+---@param self LuaWorld
 ---@return boolean
-function LuaWorld.hasStorm() end
+function LuaWorld.hasStorm(self) end
 
 ---Enables or disables stormy weather in the world.
+---@param self LuaWorld
 ---@param value boolean
-function LuaWorld.setStorm(value) end
+function LuaWorld.setStorm(self, value) end
 
----Strikes lightning at the given coordinates.
----@param x number
----@param y number
----@param z number
-function LuaWorld.strikeLightning(x, y, z) end
+---Strikes lightning at the given position.
+---@param self LuaWorld
+---@param position Vector3
+function LuaWorld.strikeLightning(self, position) end
 
----Creates an explosion at a location. Can accept x, y, z, power or (Vector3, power).
----@param xOrVector number|table
----@param yOrPower number
----@param z number
-function LuaWorld.createExplosion(xOrVector, yOrPower, z) end
+---Creates an explosion at a location.
+---@param self LuaWorld
+---@param position Vector3
+---@param power number
+function LuaWorld.createExplosion(self, position, power) end
 
 ---Returns the seed used to generate the world.
+---@param self LuaWorld
 ---@return number
-function LuaWorld.getSeed() end
+function LuaWorld.getSeed(self) end
 
 ---Returns a list of players in this world.
+---@param self LuaWorld
 ---@return table @Array of LuaPlayer objects
-function LuaWorld.getPlayers() end
+function LuaWorld.getPlayers(self) end
 
 ---Returns all entities in the world.
+---@param self LuaWorld
 ---@return table @Array of LuaEntity objects
-function LuaWorld.getEntities() end
+function LuaWorld.getEntities(self) end
 
 ---Sets a block at a given location to the specified type and optional data.
----@param x number
----@param y number
----@param z number
+---@param self LuaWorld
+---@param position Vector3
 ---@param blockType string
 ---@param data number?
-function LuaWorld.setBlock(x, y, z, blockType, data) end
+function LuaWorld.setBlock(self, position, blockType, data) end
 
 ---Returns the block at the given location.
----@param x number
----@param y number
----@param z number
+---@param self LuaWorld
+---@param position Vector3
 ---@return table @LuaBlock representing the block
-function LuaWorld.getBlockAt(x, y, z) end
+function LuaWorld.getBlockAt(self, position) end
 
 ---Gets the numeric ID of the material.
 ---@return number @The Bukkit material ID

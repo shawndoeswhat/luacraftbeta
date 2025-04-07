@@ -97,10 +97,11 @@ public class ScriptDirectoryWatcher implements Runnable {
     private void reloadScript(File scriptFile) {
         try {
             if (scriptFile.exists()) {
+                plugin.getLuaManager().notifyScriptCreatedOrModified(scriptFile.getName());
                 plugin.getLuaManager().loadScript(scriptFile);
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error reloading script: " + scriptFile.getName(), e);
         }
-    }
+    }    
 }
