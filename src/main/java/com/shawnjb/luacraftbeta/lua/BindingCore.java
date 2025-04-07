@@ -3,6 +3,7 @@ package com.shawnjb.luacraftbeta.lua;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Param;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Return;
+import com.shawnjb.luacraftbeta.lua.api.LuaDataStorage;
 import com.shawnjb.luacraftbeta.lua.api.LuaVector3;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,7 +11,6 @@ import org.luaj.vm2.*;
 import org.luaj.vm2.lib.*;
 
 import java.util.Arrays;
-
 
 public class BindingCore {
     private static JavaPlugin plugin;
@@ -71,6 +71,8 @@ public class BindingCore {
                 });
             }
         });
+
+        globals.set("storage", LuaDataStorage.createStorageTable());
     }
 
     public static void registerDocs() {
@@ -99,5 +101,23 @@ public class BindingCore {
                         new Param("y", "number"),
                         new Param("z", "number")),
                 Arrays.asList(new Return("Vector3", "A new vector object")));
+
+        LuaDocRegistry.addGlobalClass("storage");
+
+        LuaDocRegistry.addFunction(
+                "storage",
+                "applySaveData",
+                "Saves a key-value pair to persistent storage. Tables are encoded as JSON.",
+                Arrays.asList(
+                        new Param("key", "string"),
+                        new Param("value", "string|table")),
+                null);
+
+        LuaDocRegistry.addFunction(
+                "storage",
+                "getSavedData",
+                "Retrieves previously saved data for the given key.",
+                Arrays.asList(new Param("key", "string")),
+                Arrays.asList(new Return("string|table|nil", "The stored value, or nil if not found")));
     }
 }

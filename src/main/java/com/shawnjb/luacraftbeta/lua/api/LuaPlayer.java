@@ -54,28 +54,22 @@ public class LuaPlayer {
             }
         });
 
-        lua.set("teleport", new VarArgFunction() {
+        lua.set("teleport", new TwoArgFunction() {
             @Override
-            public Varargs invoke(Varargs args) {
-                if (args.narg() == 2 && args.arg(2).istable()) {
-                    LuaTable vec = args.arg(2).checktable();
-                    double x = vec.get("x").todouble();
-                    double y = vec.get("y").todouble();
-                    double z = vec.get("z").todouble();
-                    player.teleport(new Location(player.getWorld(), x, y, z));
-                    return LuaValue.NIL;
-                } else if (args.narg() >= 4 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber()) {
-
-                    double x = args.arg(2).todouble();
-                    double y = args.arg(3).todouble();
-                    double z = args.arg(4).todouble();
-                    player.teleport(new Location(player.getWorld(), x, y, z));
-                    return LuaValue.NIL;
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("teleport(Vector3) expects a Vector3 table");
                 }
-                return LuaValue.valueOf("Error: teleport(x, y, z) or teleport(Vector3)");
+
+                LuaTable vec = vecValue.checktable();
+                try {
+                    Vector vector = LuaVector3.fromTable(vec);
+                    Location loc = new Location(player.getWorld(), vector.getX(), vector.getY(), vector.getZ());
+                    player.teleport(loc);
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("teleport(Vector3) expects valid x/y/z fields in the table");
+                }
             }
         });
 
@@ -216,6 +210,41 @@ public class LuaPlayer {
             }
         });
 
+        lua.set("getItemInHand", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                ItemStack item = player.getItemInHand();
+                return item != null ? new LuaItemStack(item).toLuaTable() : LuaValue.NIL;
+            }
+        });
+
+        lua.set("setItemInHand", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue arg) {
+                if (arg.istable()) {
+                    LuaTable t = arg.checktable();
+                    LuaValue typeFunc = t.get("getType");
+                    LuaValue amountFunc = t.get("getAmount");
+
+                    if (typeFunc.isfunction() && amountFunc.isfunction()) {
+                        String type = typeFunc.call().tojstring();
+                        int amount = amountFunc.call().toint();
+
+                        Material mat = Material.getMaterial(type.toUpperCase());
+                        if (mat != null) {
+                            player.setItemInHand(new ItemStack(mat, amount));
+                            return LuaValue.NIL;
+                        }
+                        return LuaValue.error("Invalid material type: " + type);
+                    }
+
+                    return LuaValue.error("LuaItemStack is missing getType or getAmount function");
+                }
+
+                return LuaValue.error("Expected LuaItemStack table");
+            }
+        });
+
         return lua;
     }
 
@@ -248,12 +277,10 @@ public class LuaPlayer {
         LuaDocRegistry.addFunction(
                 "LuaPlayer",
                 "teleport",
-                "Teleports the player to the given coordinates or Vector3.",
+                "Teleports the player to the given Vector3 position.",
                 Arrays.asList(
                         new Param("self", "LuaPlayer"),
-                        new Param("x", "number"),
-                        new Param("y", "number"),
-                        new Param("z", "number")),
+                        new Param("position", "Vector3")),
                 null);
 
         LuaDocRegistry.addFunction(

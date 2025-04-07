@@ -1,14 +1,19 @@
 package com.shawnjb.luacraftbeta.lua.api;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.luaj.vm2.*;
-import org.luaj.vm2.lib.*;
-
-import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.util.Vector;
+import org.luaj.vm2.LuaError;
+import org.luaj.vm2.LuaTable;
+import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.lib.OneArgFunction;
+import org.luaj.vm2.lib.TwoArgFunction;
+import net.minecraft.server.WorldServer;
+import net.minecraft.server.Chunk;
+import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 
 public class LuaEntity {
     private final Entity entity;
@@ -53,35 +58,24 @@ public class LuaEntity {
             }
         });
 
-        t.set("teleport", new VarArgFunction() {
+        t.set("teleport", new TwoArgFunction() {
             @Override
-            public Varargs invoke(Varargs args) {
-                Location loc = entity.getLocation();
-
-                if (args.narg() == 2 && args.arg(2).istable()) {
-                    LuaTable vec = args.arg(2).checktable();
-                    loc.setX(vec.get("x").todouble());
-                    loc.setY(vec.get("y").todouble());
-                    loc.setZ(vec.get("z").todouble());
-
-                    entity.teleport(loc);
-                    return LuaValue.NIL;
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("teleport(Vector3) expects a Vector3 table");
                 }
 
-                if (args.narg() >= 4 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber()) {
-
-                    loc.setX(args.arg(2).todouble());
-                    loc.setY(args.arg(3).todouble());
-                    loc.setZ(args.arg(4).todouble());
-
+                try {
+                    Vector vec = LuaVector3.fromTable(vecValue.checktable());
+                    Location loc = entity.getLocation();
+                    loc.setX(vec.getX());
+                    loc.setY(vec.getY());
+                    loc.setZ(vec.getZ());
                     entity.teleport(loc);
                     return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("teleport(Vector3) expects numeric x, y, z fields");
                 }
-
-                return LuaValue.valueOf("Usage: teleport(x, y, z) or teleport(Vector3)");
             }
         });
 
@@ -93,27 +87,46 @@ public class LuaEntity {
             }
         });
 
-        t.set("getNearbyEntities", new VarArgFunction() {
+        t.set("getEntitiesInChunk", new OneArgFunction() {
             @Override
-            public Varargs invoke(Varargs args) {
-                if (args.narg() >= 4 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber()) {
+            public LuaValue call(LuaValue self) {
+                try {
 
-                    double dx = args.arg(2).todouble();
-                    double dy = args.arg(3).todouble();
-                    double dz = args.arg(4).todouble();
+                    Location loc = entity.getLocation();
+                    int chunkX = loc.getBlockX() >> 4;
+                    int chunkZ = loc.getBlockZ() >> 4;
 
-                    List<Entity> entities = entity.getNearbyEntities(dx, dy, dz);
+                    org.bukkit.World bukkitWorld = entity.getWorld();
+                    org.bukkit.craftbukkit.CraftWorld craftWorld = (org.bukkit.craftbukkit.CraftWorld) bukkitWorld;
+                    WorldServer handle = craftWorld.getHandle();
+
+                    Chunk chunk = handle.getChunkAt(chunkX, chunkZ);
+
                     LuaTable table = new LuaTable();
                     int i = 1;
-                    for (Entity e : entities) {
-                        table.set(i++, new LuaEntity(e).toLuaTable());
+
+                    for (int y = 0; y < chunk.entitySlices.length; y++) {
+                        List<?> entityList = chunk.entitySlices[y];
+                        if (entityList == null)
+                            continue;
+
+                        for (Object obj : entityList) {
+                            if (obj instanceof net.minecraft.server.Entity) {
+                                net.minecraft.server.Entity nmsEntity = (net.minecraft.server.Entity) obj;
+                                Entity bukkitEntity = nmsEntity.getBukkitEntity();
+
+                                if (bukkitEntity != null && !bukkitEntity.isDead()) {
+                                    table.set(i++, new LuaEntity(bukkitEntity).toLuaTable());
+                                }
+                            }
+                        }
                     }
+
                     return table;
+
+                } catch (Exception ex) {
+                    return LuaValue.error("getEntitiesInChunk() failed: " + ex.getMessage());
                 }
-                return LuaValue.valueOf("Usage: getNearbyEntities(x, y, z)");
             }
         });
 
@@ -159,25 +172,18 @@ public class LuaEntity {
                 Arrays.asList(new LuaDocRegistry.Param("ticks", "number")),
                 null);
 
-        LuaDocRegistry.addFunction("LuaEntity", "teleport", "Teleports the entity to a position.",
-                Arrays.asList(
-                        new LuaDocRegistry.Param("x", "number"),
-                        new LuaDocRegistry.Param("y", "number"),
-                        new LuaDocRegistry.Param("z", "number")),
-                null);
-        LuaDocRegistry.addFunction("LuaEntity", "teleport", "Teleports the entity using a Vector3 table.",
-                Arrays.asList(new LuaDocRegistry.Param("vec", "Vector3")),
+        LuaDocRegistry.addFunction("LuaEntity", "teleport",
+                "Teleports the entity using a Vector3 table.",
+                Arrays.asList(new LuaDocRegistry.Param("position", "Vector3")),
                 null);
 
         LuaDocRegistry.addFunction("LuaEntity", "getLocation", "Returns the entity's current location.",
                 Arrays.asList(),
                 Arrays.asList(new LuaDocRegistry.Return("Vector3", "Entity position")));
 
-        LuaDocRegistry.addFunction("LuaEntity", "getNearbyEntities", "Returns a list of entities nearby the entity.",
-                Arrays.asList(
-                        new LuaDocRegistry.Param("x", "number"),
-                        new LuaDocRegistry.Param("y", "number"),
-                        new LuaDocRegistry.Param("z", "number")),
+        LuaDocRegistry.addFunction("LuaEntity", "getEntitiesInChunk",
+                "Returns all entities in the chunk this entity is currently in.",
+                Arrays.asList(),
                 Arrays.asList(new LuaDocRegistry.Return("table", "Array of LuaEntity tables")));
 
         LuaDocRegistry.addFunction("LuaEntity", "isEmpty",

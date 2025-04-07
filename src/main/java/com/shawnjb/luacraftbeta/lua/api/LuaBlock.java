@@ -70,6 +70,13 @@ public class LuaBlock {
             }
         });
 
+        t.set("getPosition", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return new LuaVector3(block.getX(), block.getY(), block.getZ()).toLuaTable();
+            }
+        });
+
         t.set("getX", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue self) {
@@ -155,6 +162,11 @@ public class LuaBlock {
 
     public static void registerDocs() {
         LuaDocRegistry.addClass("LuaBlock");
+
+        LuaDocRegistry.addFunction("LuaBlock", "getPosition",
+                "Returns the block's position as a Vector3.",
+                Arrays.asList(),
+                Arrays.asList(new LuaDocRegistry.Return("Vector3", "Block position vector")));
 
         LuaDocRegistry.addFunction("LuaBlock", "getType", "Gets the block's material name.", Arrays.asList(),
                 Arrays.asList(new LuaDocRegistry.Return("string", "Block material name")));

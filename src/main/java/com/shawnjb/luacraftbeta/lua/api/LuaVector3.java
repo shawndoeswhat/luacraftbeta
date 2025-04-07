@@ -26,25 +26,6 @@ public class LuaVector3 {
     public LuaTable toLuaTable() {
         LuaTable t = new LuaTable();
 
-        t.set("getX", new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                return LuaValue.valueOf(vector.getX());
-            }
-        });
-        t.set("getY", new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                return LuaValue.valueOf(vector.getY());
-            }
-        });
-        t.set("getZ", new ZeroArgFunction() {
-            @Override
-            public LuaValue call() {
-                return LuaValue.valueOf(vector.getZ());
-            }
-        });
-
         t.set("set", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
@@ -55,18 +36,6 @@ public class LuaVector3 {
                     return LuaValue.NIL;
                 }
                 return LuaValue.error("Usage: set(x, y, z)");
-            }
-        });
-
-        t.set("add", new OneArgFunction() {
-            @Override
-            public LuaValue call(LuaValue other) {
-                if (other.istable()) {
-                    Vector v = fromTable(other.checktable());
-                    vector.add(v);
-                    return toLuaTable(); // return updated self
-                }
-                return LuaValue.error("Usage: add({x=, y=, z=})");
             }
         });
 
@@ -87,22 +56,82 @@ public class LuaVector3 {
         t.set("normalize", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
+                if (vector.lengthSquared() == 0) {
+                    return LuaValue.error("Cannot normalize a zero-length vector");
+                }
                 vector.normalize();
                 return toLuaTable();
             }
         });
 
-        t.set("toString", new ZeroArgFunction() {
+        LuaTable meta = new LuaTable();
+
+        meta.set("__index", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue table, LuaValue key) {
+                String k = key.checkjstring().toLowerCase();
+                switch (k) {
+                    case "x":
+                        return LuaValue.valueOf(vector.getX());
+                    case "y":
+                        return LuaValue.valueOf(vector.getY());
+                    case "z":
+                        return LuaValue.valueOf(vector.getZ());
+                    default:
+                        return table.rawget(key); // fallback to functions like 'length'
+                }
+            }
+        });
+
+        meta.set("__newindex", new ThreeArgFunction() {
+            @Override
+            public LuaValue call(LuaValue table, LuaValue key, LuaValue value) {
+                String k = key.checkjstring().toLowerCase();
+                switch (k) {
+                    case "x":
+                        vector.setX(value.todouble());
+                        break;
+                    case "y":
+                        vector.setY(value.todouble());
+                        break;
+                    case "z":
+                        vector.setZ(value.todouble());
+                        break;
+                    default:
+                        table.rawset(key, value);
+                }
+                return LuaValue.NIL;
+            }
+        });
+
+        meta.set("__tostring", new ZeroArgFunction() {
             @Override
             public LuaValue call() {
                 return LuaValue.valueOf("(" + vector.getX() + ", " + vector.getY() + ", " + vector.getZ() + ")");
             }
         });
 
+        meta.set("__add", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue a, LuaValue b) {
+                if (!b.istable()) {
+                    return LuaValue.error("Right operand must be a Vector3");
+                }
+                Vector v1 = vector.clone();
+                Vector v2 = fromTable(b.checktable());
+                v1.add(v2);
+                return new LuaVector3(v1).toLuaTable();
+            }
+        });
+
+        t.setmetatable(meta);
         return t;
     }
 
     public static Vector fromTable(LuaTable table) {
+        if (!table.get("x").isnumber() || !table.get("y").isnumber() || !table.get("z").isnumber()) {
+            throw new LuaError("Expected Vector3 table with numeric fields 'x', 'y', and 'z'");
+        }
         double x = table.get("x").todouble();
         double y = table.get("y").todouble();
         double z = table.get("z").todouble();
@@ -114,28 +143,11 @@ public class LuaVector3 {
     }
 
     public static void registerDocs() {
-        LuaDocRegistry.addClass("Vector3");
+        LuaDocRegistry.addGlobalClass("Vector3");
 
-        LuaDocRegistry.addFunction(
-                "Vector3",
-                "getX",
-                "Returns the X coordinate of the vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "X coordinate")));
-
-        LuaDocRegistry.addFunction(
-                "Vector3",
-                "getY",
-                "Returns the Y coordinate of the vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Y coordinate")));
-
-        LuaDocRegistry.addFunction(
-                "Vector3",
-                "getZ",
-                "Returns the Z coordinate of the vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("number", "Z coordinate")));
+        LuaDocRegistry.addField("Vector3", "x", "number", "The X coordinate");
+        LuaDocRegistry.addField("Vector3", "y", "number", "The Y coordinate");
+        LuaDocRegistry.addField("Vector3", "z", "number", "The Z coordinate");
 
         LuaDocRegistry.addFunction(
                 "Vector3",
@@ -146,13 +158,6 @@ public class LuaVector3 {
                         new LuaDocRegistry.Param("y", "number"),
                         new LuaDocRegistry.Param("z", "number")),
                 null);
-
-        LuaDocRegistry.addFunction(
-                "Vector3",
-                "add",
-                "Adds another vector to this one.",
-                Arrays.asList(new LuaDocRegistry.Param("other", "Vector3")),
-                Arrays.asList(new LuaDocRegistry.Return("Vector3", "The updated vector")));
 
         LuaDocRegistry.addFunction(
                 "Vector3",
@@ -174,12 +179,5 @@ public class LuaVector3 {
                 "Normalizes this vector to a unit vector.",
                 Arrays.asList(),
                 Arrays.asList(new LuaDocRegistry.Return("Vector3", "Normalized vector")));
-
-        LuaDocRegistry.addFunction(
-                "Vector3",
-                "toString",
-                "Returns a string representation of the vector.",
-                Arrays.asList(),
-                Arrays.asList(new LuaDocRegistry.Return("string", "Formatted string of coordinates")));
     }
 }

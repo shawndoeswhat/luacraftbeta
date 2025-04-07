@@ -4,6 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.luaj.vm2.*;
@@ -67,57 +68,37 @@ public class LuaWorld {
             }
         });
 
-        t.set("strikeLightning", new VarArgFunction() {
+        t.set("strikeLightning", new TwoArgFunction() {
             @Override
-            public Varargs invoke(Varargs args) {
-                if (args.narg() >= 4 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber()) {
-
-                    Location loc = new Location(world,
-                            args.arg(2).todouble(),
-                            args.arg(3).todouble(),
-                            args.arg(4).todouble());
-
-                    world.strikeLightning(loc);
-                    return LuaValue.NIL;
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("strikeLightning(Vector3) expects a Vector3 table");
                 }
-                return LuaValue.valueOf("Error: strikeLightning(x, y, z) expects numbers.");
+
+                try {
+                    Vector vec = LuaVector3.fromTable(vecValue.checktable());
+                    world.strikeLightning(new Location(world, vec.getX(), vec.getY(), vec.getZ()));
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("strikeLightning(Vector3) expects numeric x, y, z fields");
+                }
             }
         });
 
         t.set("createExplosion", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-
                 if (args.narg() == 3 && args.arg(2).istable() && args.arg(3).isnumber()) {
-                    LuaTable vec = args.arg(2).checktable();
-                    double x = vec.get("x").todouble();
-                    double y = vec.get("y").todouble();
-                    double z = vec.get("z").todouble();
-                    float power = (float) args.arg(3).todouble();
-
-                    world.createExplosion(x, y, z, power);
-                    return LuaValue.NIL;
+                    try {
+                        Vector vec = LuaVector3.fromTable(args.arg(2).checktable());
+                        float power = (float) args.arg(3).todouble();
+                        world.createExplosion(vec.getX(), vec.getY(), vec.getZ(), power);
+                        return LuaValue.NIL;
+                    } catch (LuaError e) {
+                        return LuaValue.error("createExplosion(Vector3, power) expects valid numeric x/y/z");
+                    }
                 }
-
-                if (args.narg() >= 5 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber() &&
-                        args.arg(5).isnumber()) {
-
-                    double x = args.arg(2).todouble();
-                    double y = args.arg(3).todouble();
-                    double z = args.arg(4).todouble();
-                    float power = (float) args.arg(5).todouble();
-
-                    world.createExplosion(x, y, z, power);
-                    return LuaValue.NIL;
-                }
-
-                return LuaValue.valueOf("Usage: createExplosion(x, y, z, power) or createExplosion(Vector3, power)");
+                return LuaValue.error("Usage: createExplosion(Vector3, power)");
             }
         });
 
@@ -157,49 +138,45 @@ public class LuaWorld {
         t.set("setBlock", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-                if (args.narg() < 5 || !args.arg(2).isnumber() || !args.arg(3).isnumber() || !args.arg(4).isnumber()
-                        || !args.arg(5).isstring()) {
-                    return LuaValue.valueOf("Usage: setBlock(x, y, z, blockType [, data])");
+                if (args.narg() < 4 || !args.arg(2).istable() || !args.arg(3).isstring()) {
+                    return LuaValue.error("Usage: setBlock(Vector3, blockType [, data])");
                 }
 
-                int x = args.arg(2).toint();
-                int y = args.arg(3).toint();
-                int z = args.arg(4).toint();
-                String blockType = args.arg(5).tojstring().toUpperCase();
+                try {
+                    Vector vec = LuaVector3.fromTable(args.arg(2).checktable());
+                    String blockType = args.arg(3).tojstring().toUpperCase();
+                    Material mat = Material.getMaterial(blockType);
+                    if (mat == null)
+                        return LuaValue.error("Invalid material: " + blockType);
 
-                Material mat = Material.getMaterial(blockType);
-                if (mat == null) {
-                    return LuaValue.valueOf("Invalid material: " + blockType);
+                    Block block = world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+                    block.setType(mat);
+
+                    if (args.narg() >= 4 && args.arg(4).isnumber()) {
+                        block.setData((byte) args.arg(4).toint());
+                    }
+
+                    return LuaValue.NIL;
+                } catch (LuaError e) {
+                    return LuaValue.error("setBlock(Vector3, blockType [, data]) requires valid x/y/z");
                 }
-
-                Block block = world.getBlockAt(x, y, z);
-                block.setType(mat);
-
-                if (args.narg() >= 6 && args.arg(6).isnumber()) {
-                    byte data = (byte) args.arg(6).toint();
-                    block.setData(data);
-                }
-
-                return LuaValue.NIL;
             }
         });
 
-        t.set("getBlockAt", new VarArgFunction() {
+        t.set("getBlockAt", new TwoArgFunction() {
             @Override
-            public Varargs invoke(Varargs args) {
-                if (args.narg() >= 4 &&
-                        args.arg(2).isnumber() &&
-                        args.arg(3).isnumber() &&
-                        args.arg(4).isnumber()) {
-
-                    int x = args.arg(2).toint();
-                    int y = args.arg(3).toint();
-                    int z = args.arg(4).toint();
-
-                    Block block = world.getBlockAt(x, y, z);
-                    return new LuaBlock(block).toLuaTable();
+            public LuaValue call(LuaValue self, LuaValue vecValue) {
+                if (!vecValue.istable()) {
+                    return LuaValue.error("getBlockAt(Vector3) expects a Vector3 table");
                 }
-                return LuaValue.valueOf("Usage: getBlockAt(x, y, z)");
+
+                try {
+                    Vector vec = LuaVector3.fromTable(vecValue.checktable());
+                    Block block = world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+                    return new LuaBlock(block).toLuaTable();
+                } catch (LuaError e) {
+                    return LuaValue.error("getBlockAt(Vector3) expects numeric x, y, z fields");
+                }
             }
         });
 

@@ -42,9 +42,22 @@ public class LuaDocRegistry {
         }
     }
 
-    private static final Map<String, List<FunctionDoc>> functions = new LinkedHashMap<>();
+    public static class FieldDoc {
+        public final String name;
+        public final String type;
+        public final String description;
 
+        public FieldDoc(String name, String type, String description) {
+            this.name = name;
+            this.type = type;
+            this.description = description;
+        }
+    }
+
+    private static final Map<String, List<FunctionDoc>> functions = new LinkedHashMap<>();
+    private static final Map<String, List<FieldDoc>> fields = new LinkedHashMap<>();
     private static final Set<String> classes = new LinkedHashSet<>();
+    private static final Set<String> globalClasses = new LinkedHashSet<>();
 
     public static void addFunction(String category, String name, String description, List<Param> params,
             List<Return> returns) {
@@ -52,16 +65,34 @@ public class LuaDocRegistry {
                 .add(new FunctionDoc(name, description, params, returns));
     }
 
+    public static void addField(String className, String fieldName, String fieldType, String description) {
+        fields.computeIfAbsent(className, k -> new ArrayList<>())
+                .add(new FieldDoc(fieldName, fieldType, description));
+    }
+
     public static void addClass(String className) {
         classes.add(className);
+    }
+
+    public static void addGlobalClass(String className) {
+        addClass(className);
+        globalClasses.add(className);
     }
 
     public static Map<String, List<FunctionDoc>> getAllFunctions() {
         return functions;
     }
 
+    public static Map<String, List<FieldDoc>> getAllFields() {
+        return fields;
+    }
+
     public static Set<String> getAllClasses() {
         return classes;
+    }
+
+    public static Set<String> getGlobalClasses() {
+        return globalClasses;
     }
 
     public static void debugPrint() {
@@ -72,5 +103,12 @@ public class LuaDocRegistry {
                 System.out.println("  Function: " + doc.name);
             }
         }
+        for (Map.Entry<String, List<FieldDoc>> entry : fields.entrySet()) {
+            System.out.println("[LuaDocRegistry] Fields for: " + entry.getKey());
+            for (FieldDoc doc : entry.getValue()) {
+                System.out.println("  Field: " + doc.name + " (" + doc.type + ")");
+            }
+        }
+        System.out.println("[LuaDocRegistry] Global Classes: " + globalClasses);
     }
 }
