@@ -469,7 +469,7 @@ public class BindingMC {
                 "Executes a command as the server or a specific player.",
                 Arrays.asList(
                         new Param("command", "string"),
-                        new Param("playerName?", "string (optional)")),
+                        new Param("playerName", "string? (optional)")),
                 Arrays.asList(new Return("boolean", "True if the command executed successfully, false otherwise")));
     }
 }
