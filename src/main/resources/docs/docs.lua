@@ -115,6 +115,12 @@ function mc.broadcast(message) end
 ---@param message string
 function mc.sendMessage(playerName, message) end
 
+---Executes a command as the server or a specific player.
+---@param command string
+---@param playerName string (optional)
+---@return boolean @True if the command executed successfully, false otherwise
+function mc.runCommand(command, playerName?) end
+
 ---Returns the name of the player.
 ---@return string @The player's name
 function LuaPlayer:getName() end
@@ -273,7 +279,7 @@ function LuaWorld:getEntities() end
 ---Sets a block at a given location to the specified type and optional data.
 ---@param position Vector3
 ---@param blockType string
----@param data number?
+---@param data number|nil
 function LuaWorld:setBlock(position, blockType, data) end
 
 ---Returns the block at the given location. May return nil if the position is invalid or the block could not be resolved.

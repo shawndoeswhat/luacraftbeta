@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.shawnjb.luacraftbeta.commands.LoadScriptCommand;
+import com.shawnjb.luacraftbeta.commands.LuaInfoCommand;
+import com.shawnjb.luacraftbeta.commands.RunScriptCommand;
 import com.shawnjb.luacraftbeta.auth.AuthMeHandler;
 import com.shawnjb.luacraftbeta.commands.ListScriptsCommand;
 
@@ -46,6 +48,8 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
 
         getCommand("loadscript").setExecutor(new LoadScriptCommand(this, luaManager));
         getCommand("listscripts").setExecutor(new ListScriptsCommand(this));
+        getCommand("luainfo").setExecutor(new LuaInfoCommand(this, luaManager));
+        getCommand("runscript").setExecutor(new RunScriptCommand(this, luaManager));
 
         getServer().getPluginManager().registerEvents(new LuaCraftListener(this), this);
 
@@ -66,52 +70,81 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
             File jarFile = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
             try (JarFile jar = new JarFile(jarFile)) {
                 Enumeration<JarEntry> entries = jar.entries();
-
+    
                 while (entries.hasMoreElements()) {
                     JarEntry entry = entries.nextElement();
                     String name = entry.getName();
-
-                    if (name.startsWith("scripts/") && name.endsWith(".lua") && !entry.isDirectory()) {
+    
+                    boolean isLuaScript = name.startsWith("scripts/") && name.endsWith(".lua");
+                    boolean isDocsFile = name.startsWith("docs/") && name.endsWith(".lua");
+    
+                    if ((isLuaScript || isDocsFile) && !entry.isDirectory()) {
                         File outFile = new File(getDataFolder(), name);
-                        if (!outFile.exists()) {
-                            saveResource(name, false);
-                            getLogger().info("Extracted script: " + name);
+    
+                        // Always create parent directories
+                        outFile.getParentFile().mkdirs();
+    
+                        try (InputStream in = jar.getInputStream(entry);
+                             OutputStream out = new FileOutputStream(outFile)) {
+    
+                            byte[] buffer = new byte[1024];
+                            int length;
+                            while ((length = in.read(buffer)) > 0) {
+                                out.write(buffer, 0, length);
+                            }
+    
+                            getLogger().info("Extracted: " + name);
+    
+                        } catch (IOException e) {
+                            getLogger().warning("Failed to extract: " + name + " -> " + e.getMessage());
                         }
                     }
                 }
             }
         } catch (URISyntaxException | IOException e) {
-            getLogger().severe("Failed to extract Lua scripts: " + e.getMessage());
+            getLogger().severe("Failed to extract Lua resources: " + e.getMessage());
             e.printStackTrace();
         }
+    }    
+
+    public InputStream getResourceAsStream(String resourcePath) {
+        return getClass().getClassLoader().getResourceAsStream(resourcePath);
     }
 
     public void saveResource(String resourcePath, boolean replace) {
+        if (resourcePath == null || resourcePath.isEmpty()) {
+            throw new IllegalArgumentException("ResourcePath cannot be null or empty");
+        }
+    
+        InputStream in = getResourceAsStream(resourcePath);
+        if (in == null) {
+            getLogger().warning("The embedded resource '" + resourcePath + "' cannot be found in the JAR.");
+            return;
+        }
+    
         File outFile = new File(getDataFolder(), resourcePath);
-
+        File outDir = outFile.getParentFile();
+    
+        if (!outDir.exists() && !outDir.mkdirs()) {
+            getLogger().warning("Failed to create directories for: " + outDir.getPath());
+            return;
+        }
+    
         if (!outFile.exists() || replace) {
-            try (InputStream in = getResourceAsStream(resourcePath);
-                    OutputStream out = new FileOutputStream(outFile)) {
-
-                if (in == null) {
-                    throw new IllegalArgumentException("Resource not found: " + resourcePath);
-                }
-
+            try (OutputStream out = new FileOutputStream(outFile)) {
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = in.read(buffer)) > 0) {
                     out.write(buffer, 0, length);
                 }
-
+                getLogger().info("Extracted resource: " + resourcePath);
             } catch (IOException e) {
-                getLogger().warning("Could not save resource " + resourcePath + ": " + e.getMessage());
+                getLogger().warning("Failed to save resource '" + resourcePath + "': " + e.getMessage());
             }
+        } else {
+            getLogger().info("Resource already exists and will not be replaced: " + resourcePath);
         }
-    }
-
-    public InputStream getResourceAsStream(String resourcePath) {
-        return getClass().getClassLoader().getResourceAsStream(resourcePath);
-    }
+    }    
 
     public Logger getLogger() {
         return Bukkit.getLogger();

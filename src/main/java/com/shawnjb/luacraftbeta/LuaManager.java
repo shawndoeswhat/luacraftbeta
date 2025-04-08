@@ -19,14 +19,19 @@ public class LuaManager {
     private final LuaCraftBetaPlugin plugin;
     private final Globals globals;
     private final Set<String> missingScripts = new HashSet<>();
+    private int loadedScriptCount = 0;
 
     public LuaManager(LuaCraftBetaPlugin plugin) {
         this.plugin = plugin;
-
+    
         LuaBindings bindings = new LuaBindings();
-        bindings.registerAll();
+        bindings.registerAll(plugin, this);
         this.globals = bindings.getGlobals();
     }
+
+    public int getLoadedScriptCount() {
+        return loadedScriptCount;
+    }    
 
     public void loadScript(File scriptFile) {
         if (!scriptFile.exists()) {
@@ -37,6 +42,7 @@ public class LuaManager {
         try (FileReader reader = new FileReader(scriptFile)) {
             LuaValue chunk = globals.load(reader, scriptFile.getName(), globals);
             chunk.call();
+            loadedScriptCount++;
 
             // plugin.getLogger().info("Successfully loaded and executed script: " + scriptFile.getName());
         } catch (IOException e) {
@@ -106,7 +112,7 @@ public class LuaManager {
             }
 
             returned.call(luaPlayer);
-
+            loadedScriptCount++;            
             // plugin.getLogger().info("Successfully executed script: " + scriptPath);
         } catch (IOException e) {
             plugin.getLogger().severe("Error reading script file: " + scriptPath);
@@ -154,6 +160,7 @@ public class LuaManager {
     
             if (returned.isfunction()) {
                 returned.invoke(args);
+                loadedScriptCount++;
                 // plugin.getLogger().info("Successfully executed script with args: " + matchedFile.getName());
             } else if (!isAutorun) {
                 plugin.getLogger().warning("Script " + matchedFile.getName() + " did not return a function.");

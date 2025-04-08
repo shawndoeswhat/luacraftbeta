@@ -29,6 +29,15 @@ public class BindingCore {
             }
         });
 
+        globals.set("log", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                String message = arg.tojstring();
+                Bukkit.getLogger().info("[Lua] " + message);
+                return NIL;
+            }
+        });
+
         globals.set("wait", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {

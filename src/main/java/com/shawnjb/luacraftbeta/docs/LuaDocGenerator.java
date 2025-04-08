@@ -2,25 +2,33 @@ package com.shawnjb.luacraftbeta.docs;
 
 import java.io.*;
 import java.nio.file.*;
-
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.FieldDoc;
 
-import java.util.List;
-
 public class LuaDocGenerator {
     public static void main(String[] args) {
-        generate();
+        if (args.length > 0) {
+            generate(Paths.get(args[0]));
+        } else {
+            String outputRoot = System.getProperty("project.build.outputDirectory", "target/classes");
+            generate(Paths.get(outputRoot, "docs", "docs.lua"));
+        }
     }
 
-    public static void generate() {
-        Path outputPath = Paths.get("src/main/resources/docs/docs.lua");
+    public static void generate(Path outputPath) {
+        try {
+            Path parentDir = outputPath.toAbsolutePath().getParent();
+            if (parentDir != null) {
+                Files.createDirectories(parentDir);
+            }
+        } catch (IOException e) {
+            System.err.println("[LuaDocGenerator] Failed to create docs directory:");
+            e.printStackTrace();
+            return;
+        }
 
         try {
-            Files.createDirectories(outputPath.getParent());
-
             LuaDocBootstrap.registerAll();
 
             try (BufferedWriter writer = Files.newBufferedWriter(outputPath)) {
@@ -37,8 +45,7 @@ public class LuaDocGenerator {
                     if (fields != null) {
                         for (FieldDoc field : fields) {
                             if (field.description != null && !field.description.isEmpty()) {
-                                writer.write(String.format("---@field %s %s @%s\n", field.name, field.type,
-                                        field.description));
+                                writer.write(String.format("---@field %s %s @%s\n", field.name, field.type, field.description));
                             } else {
                                 writer.write(String.format("---@field %s %s\n", field.name, field.type));
                             }
@@ -64,11 +71,11 @@ public class LuaDocGenerator {
 
                     for (LuaDocRegistry.FunctionDoc func : entry.getValue()) {
                         writer.write(String.format("---%s\n", func.description));
-
                         for (LuaDocRegistry.Param param : func.params) {
                             if (func.isMethod && param.name.equals("self")) continue;
-                            writer.write(String.format("---@param %s %s\n", param.name, param.type));
-                        }                        
+                            String paramType = param.type.replace("?", "|nil");
+                            writer.write(String.format("---@param %s %s\n", param.name.replace("?", ""), paramType));                            
+                        }
 
                         for (LuaDocRegistry.Return ret : func.returns) {
                             if (ret.description != null && !ret.description.isEmpty()) {
@@ -78,23 +85,18 @@ public class LuaDocGenerator {
                             }
                         }
 
-                        String prefix;
-                        if (isGlobal) {
-                            prefix = "function " + func.name;
-                        } else {
-                            prefix = "function " + category + (func.isMethod ? ":" : ".") + func.name;
-                        }
-                        writer.write(prefix + "(");                        
+                        String prefix = isGlobal ? "function " + func.name : "function " + category + (func.isMethod ? ":" : ".") + func.name;
+                        writer.write(prefix + "(");
 
                         List<LuaDocRegistry.Param> params = func.params;
                         for (int i = 0; i < params.size(); i++) {
                             if (func.isMethod && params.get(i).name.equals("self")) continue;
-                        
                             writer.write(params.get(i).name);
-                            if (i < params.size() - 1 && !(func.isMethod && params.get(i + 1).name.equals("self")))
+                            if (i < params.size() - 1 && !(func.isMethod && params.get(i + 1).name.equals("self"))) {
                                 writer.write(", ");
+                            }
                         }
-                        
+
                         writer.write(") end\n\n");
                     }
                 }
