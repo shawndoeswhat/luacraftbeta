@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.shawnjb.luacraftbeta.commands.LoadScriptCommand;
+import com.shawnjb.luacraftbeta.auth.AuthMeHandler;
 import com.shawnjb.luacraftbeta.commands.ListScriptsCommand;
 
 import java.io.*;
@@ -38,6 +39,7 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         }
 
         extractLuaScriptsFromJar();
+        AuthMeHandler.init();
 
         config = new LuaCraftConfig(this, new File(getDataFolder(), "config.yml"));
         luaManager = new LuaManager(this);

@@ -225,3 +225,4 @@ hs_err_pid*
 
 target/
 src/main/resources/docs
+!jars/*.jar

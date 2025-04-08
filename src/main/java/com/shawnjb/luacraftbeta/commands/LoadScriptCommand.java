@@ -2,6 +2,8 @@ package com.shawnjb.luacraftbeta.commands;
 
 import com.shawnjb.luacraftbeta.LuaCraftBetaPlugin;
 import com.shawnjb.luacraftbeta.LuaManager;
+import com.shawnjb.luacraftbeta.auth.AuthMeHandler;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -25,6 +27,14 @@ public class LoadScriptCommand implements CommandExecutor {
         if (!(sender instanceof Player) && !sender.hasPermission("luacraftbeta.loadscript")) {
             sender.sendMessage("This command can only be executed by players or requires permission.");
             return true;
+        }
+    
+        if (sender instanceof Player) {
+            Player player = (Player) sender;
+            if (!AuthMeHandler.isPlayerLoggedIn(player)) {
+                sender.sendMessage("You must be logged in to use this command.");
+                return true;
+            }
         }
 
         if (args.length < 1 || args.length > 2) {

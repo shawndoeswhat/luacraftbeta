@@ -23,6 +23,7 @@ import com.shawnjb.luacraftbeta.lua.api.LuaBlock;
 import com.shawnjb.luacraftbeta.lua.api.LuaEntity;
 import com.shawnjb.luacraftbeta.lua.api.LuaPlayer;
 import com.shawnjb.luacraftbeta.lua.api.LuaWorld;
+import com.shawnjb.luacraftbeta.auth.AuthMeHandler;
 
 public class LuaCraftListener implements Listener {
     private final LuaCraftBetaPlugin plugin;
@@ -40,7 +41,11 @@ public class LuaCraftListener implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (config.isAutoLoadScripts()) {
-            LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
+            Player player = event.getPlayer();
+            if (!AuthMeHandler.isPlayerLoggedIn(player))
+                return;
+
+            LuaPlayer luaPlayer = new LuaPlayer(player);
             tryExecuteScript("playerjoining.lua", luaPlayer.toLuaTable());
         }
     }
@@ -48,7 +53,11 @@ public class LuaCraftListener implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (config.isAutoLoadScripts()) {
-            LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
+            Player player = event.getPlayer();
+            if (!AuthMeHandler.isPlayerLoggedIn(player))
+                return;
+
+            LuaPlayer luaPlayer = new LuaPlayer(player);
             tryExecuteScript("playerquitting.lua", luaPlayer.toLuaTable());
         }
     }
@@ -88,6 +97,8 @@ public class LuaCraftListener implements Listener {
             return;
 
         LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
+        if (!AuthMeHandler.isPlayerLoggedIn(event.getPlayer()))
+            return;
 
         if (event.getClickedBlock() != null) {
             LuaBlock luaBlock = new LuaBlock(event.getClickedBlock());
@@ -165,6 +176,9 @@ public class LuaCraftListener implements Listener {
     @EventHandler
     public void onPlayerChat(PlayerChatEvent event) {
         if (config.isAutoLoadScripts()) {
+            if (!AuthMeHandler.isPlayerLoggedIn(event.getPlayer()))
+                return;
+
             LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
             tryExecuteScript("playerchatted.lua",
                     luaPlayer.toLuaTable(),
