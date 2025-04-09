@@ -6,11 +6,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class GuiConsoleManager {
+    private static JFrame frame;
     private static JTextArea outputArea;
     private static JTextField inputField;
 
     public static void launch() {
-        JFrame frame = new JFrame("LuaCraftBeta Management Console");
+        if (frame != null && frame.isShowing()) {
+            frame.toFront();
+            frame.requestFocus();
+            return;
+        }
+
+        frame = new JFrame("LuaCraftBeta Management Console");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(600, 400);
 
@@ -44,24 +51,41 @@ public class GuiConsoleManager {
         frame.setVisible(true);
     }
 
+    public static void showConsole() {
+        SwingUtilities.invokeLater(() -> {
+            if (frame == null || !frame.isShowing()) {
+                launch();
+            } else {
+                frame.toFront();
+                frame.requestFocus();
+            }
+        });
+    }
+
     public static void printToConsole(String text) {
         SwingUtilities.invokeLater(() -> {
-            outputArea.append(text + "\n");
-            outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            if (outputArea != null) {
+                outputArea.append(text + "\n");
+                outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            }
         });
     }
 
     public static void printError(String text) {
         SwingUtilities.invokeLater(() -> {
-            outputArea.append("[Error] " + text + "\n");
-            outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            if (outputArea != null) {
+                outputArea.append("[Error] " + text + "\n");
+                outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            }
         });
     }
 
     public static void printInfo(String text) {
         SwingUtilities.invokeLater(() -> {
-            outputArea.append("[Info] " + text + "\n");
-            outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            if (outputArea != null) {
+                outputArea.append("[Info] " + text + "\n");
+                outputArea.setCaretPosition(outputArea.getDocument().getLength());
+            }
         });
     }
-} 
+}

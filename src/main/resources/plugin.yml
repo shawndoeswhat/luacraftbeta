@@ -32,6 +32,12 @@ commands:
     permission: luacraftbeta.luainfo
     permission-message: You do not have permission to use this command.
 
+  lcbconsole:
+    description: Opens the LuaCraftBeta GUI console.
+    usage: /<command>
+    permission: luacraftbeta.console
+    permission-message: You do not have permission to use this command.
+
 permissions:
   luacraftbeta.*:
     description: Gives access to all LuaCraftBeta commands.
@@ -40,6 +46,7 @@ permissions:
       luacraftbeta.listscripts: true
       luacraftbeta.runscript: true
       luacraftbeta.luainfo: true
+      luacraftbeta.console: true
 
   luacraftbeta.loadscript:
     description: Allows access to the /loadscript command.

@@ -40,9 +40,18 @@ public class LuaConsoleBridge {
             GuiConsoleManager.printToConsole("Usage: loadscript [name]");
             return;
         }
-        boolean success = luaManager.loadScript(scriptName);
-        GuiConsoleManager.printToConsole(success ? "Loaded script: " + scriptName : "Failed to load script.");
-    }
+    
+        String activePlayerName = getActivePlayerName();
+        boolean debug = true; // maybe later expose a toggle for this
+    
+        File scriptFile = new File(plugin.getDataFolder(), "scripts/" + scriptName);
+        if (!scriptFile.exists()) {
+            GuiConsoleManager.printToConsole("Script not found: " + scriptName);
+            return;
+        }
+    
+        luaManager.executeScript(scriptFile.getAbsolutePath(), activePlayerName, debug);
+    }    
 
     public static void remoteLoad(String url) {
         if (url.isEmpty()) {

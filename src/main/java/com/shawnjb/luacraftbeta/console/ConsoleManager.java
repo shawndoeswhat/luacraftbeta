@@ -17,6 +17,11 @@ public class ConsoleManager {
                     LuaConsoleBridge.setActivePlayer(args);
                 }
                 break;
+            case "clearplayer":
+            case "unsetplayer":
+                LuaConsoleBridge.setActivePlayer(null);
+                GuiConsoleManager.printToConsole("Cleared active player.");
+                break;
             case "loadscript":
                 LuaConsoleBridge.loadScript(args);
                 break;

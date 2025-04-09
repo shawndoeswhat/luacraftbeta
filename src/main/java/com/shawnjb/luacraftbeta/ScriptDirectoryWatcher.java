@@ -103,5 +103,5 @@ public class ScriptDirectoryWatcher implements Runnable {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Error reloading script: " + scriptFile.getName(), e);
         }
-    }    
+    }
 }

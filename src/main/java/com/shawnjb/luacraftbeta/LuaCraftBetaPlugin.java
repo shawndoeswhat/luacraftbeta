@@ -6,10 +6,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.shawnjb.luacraftbeta.commands.LoadScriptCommand;
 import com.shawnjb.luacraftbeta.commands.LuaInfoCommand;
 import com.shawnjb.luacraftbeta.commands.RunScriptCommand;
-import com.shawnjb.luacraftbeta.console.ConsoleManager;
 import com.shawnjb.luacraftbeta.console.GuiConsoleManager;
 import com.shawnjb.luacraftbeta.console.LuaConsoleBridge;
 import com.shawnjb.luacraftbeta.auth.AuthMeHandler;
+import com.shawnjb.luacraftbeta.commands.LcbConsoleCommand;
 import com.shawnjb.luacraftbeta.commands.ListScriptsCommand;
 
 import java.io.*;
@@ -53,6 +53,7 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         getCommand("listscripts").setExecutor(new ListScriptsCommand(this));
         getCommand("luainfo").setExecutor(new LuaInfoCommand(this, luaManager));
         getCommand("runscript").setExecutor(new RunScriptCommand(this, luaManager));
+        getCommand("lcbconsole").setExecutor(new LcbConsoleCommand());
 
         getServer().getPluginManager().registerEvents(new LuaCraftListener(this), this);
 

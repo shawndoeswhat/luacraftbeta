@@ -9,11 +9,7 @@ return function(attacker, entity, damage, cause)
 
     if attacker.getType and attacker:getType() == "player" then
         if attacker.isOp and attacker:isOp() then
-            local world = entity:getWorld()
-            local loc = entity:getLocation()
-            world:strikeLightning(loc)
-            wait(0.1)
-            attacker:setHealth(20)
+            entity:kill()
         end
     end
 end
