@@ -217,6 +217,10 @@ function LuaPlayer:damage(amount) end
 ---Kills the player by setting their health to 0.
 function LuaPlayer:kill() end
 
+---Sets the number of fire ticks the player is burning.
+---@param ticks number
+function LuaPlayer:setFireTicks(ticks) end
+
 ---Sets the vector's coordinates.
 ---@param x number
 ---@param y number

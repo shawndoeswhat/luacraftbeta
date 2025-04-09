@@ -322,6 +322,17 @@ public class LuaPlayer {
             }
         });
 
+        lua.set("setFireTicks", new TwoArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self, LuaValue ticks) {
+                if (ticks.isnumber()) {
+                    player.setFireTicks(ticks.toint());
+                    return LuaValue.NIL;
+                }
+                return LuaValue.valueOf("Error: setFireTicks expects a number.");
+            }
+        });
+
         return lua;
     }
 
@@ -452,6 +463,13 @@ public class LuaPlayer {
 
         LuaDocRegistry.addFunction("LuaPlayer", "kill", "Kills the player by setting their health to 0.",
                 Arrays.asList(new Param("self", "LuaPlayer")),
+                null,
+                true);
+
+        LuaDocRegistry.addFunction("LuaPlayer", "setFireTicks", "Sets the number of fire ticks the player is burning.",
+                Arrays.asList(
+                        new Param("self", "LuaPlayer"),
+                        new Param("ticks", "number")),
                 null,
                 true);
     }

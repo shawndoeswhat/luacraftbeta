@@ -153,7 +153,62 @@ return function(player, message)
                 end
             end
         end,
+
+        fire = function(player, args)
+            local targets = resolveTargets(args[2] or "me")
+            local ticks = tonumber(args[3]) or 100 -- default: 5 seconds (20 ticks per second)
+        
+            for _, p in ipairs(targets) do
+                p:setFireTicks(ticks)
+                p:sendMessage("you were set on fire!")
+            end
+        
+            player:sendMessage("set " .. #targets .. " player(s) on fire for " .. ticks .. " ticks.")
+        end,
+
+        summon = function(player, args)
+            local entityName = args[2]
+            local count = tonumber(args[3]) or 1
+            local targetArg = args[4] or "me"
+        
+            if not entityName then
+                player:sendMessage("usage: :summon <entity> <count> <target>")
+                return
+            end
+        
+            count = math.max(1, math.min(count, 100)) -- clamp between 1 and 100
+            local targets = resolveTargets(targetArg)
+            local world = player:getWorld()
+            local total = 0
+        
+            for _, p in ipairs(targets) do
+                local pos = p:getLocation()
+                for i = 1, count do
+                    local result = mc.summon(entityName, world, pos)
+                    if result and type(result) == "table" and result.getType then
+                        total = total + 1
+                    end
+                end
+                p:sendMessage("summoned " .. count .. " " .. entityName .. "(s) at your location")
+            end
+        
+            player:sendMessage("summoned a total of " .. total .. " " .. entityName .. "(s)")
+        end,        
     }
+
+    local function extinguishPlayers(player, args)
+        local targets = resolveTargets(args[2] or "me")
+    
+        for _, p in ipairs(targets) do
+            p:setFireTicks(0)
+            p:sendMessage("you are no longer on fire.")
+        end
+    
+        player:sendMessage("extinguished " .. #targets .. " player(s)")
+    end
+    
+    abusiveCommands.unfire = extinguishPlayers
+    abusiveCommands.nofire = extinguishPlayers
 
     local nonAbusiveCommands = {
         help = function(player)
@@ -163,6 +218,87 @@ return function(player, message)
 
         ping = function(player)
             player:sendMessage("pong")
+        end,
+
+        coords = function(player)
+            local pos = player:getLocation()
+            player:sendMessage(string.format("your position is: x=%.2f y=%.2f z=%.2f", pos.x, pos.y, pos.z))
+        end,
+        
+        dimension = function(player)
+            player:sendMessage("you are in: " .. player:getDimension())
+        end,
+        
+        who = function(player)
+            local players = world:getPlayers()
+            local names = {}
+        
+            for _, p in ipairs(players) do
+                table.insert(names, p:getName())
+            end
+        
+            player:sendMessage("online players: " .. table.concat(names, ", "))
+        end,
+        
+        health = function(player)
+            player:sendMessage("your health: " .. player:getHealth() .. " / " .. player:getMaxHealth())
+        end,
+        
+        status = function(player)
+            local health = player:getHealth()
+            local fireTicks = player:getVelocity().y > 0 and player:getHealth() > 0 and player:getFireTicks() or 0
+            player:sendMessage("health: " .. health .. " / " .. player:getMaxHealth())
+            player:sendMessage("on fire: " .. (fireTicks > 0 and "yes (" .. fireTicks .. " ticks)" or "no"))
+        end,
+        
+        item = function(player)
+            local item = player:getItemInHand()
+            if item and item.getType then
+                player:sendMessage("you're holding: " .. item:getType())
+            else
+                player:sendMessage("your hand is empty.")
+            end
+        end,
+        
+        inv = function(player, args)
+            local material = args[2]
+            if not material then
+                player:sendMessage("usage: :inv <item>")
+                return
+            end
+        
+            local count = 0
+            local inv = player:getWorld().getBlockAt -- just in case this breaks, fall back later
+            for i = 0, 35 do
+                local item = player:getInventoryItem(i)
+                if item and item.getType then
+                    if item:getType():lower() == material:lower() then
+                        count = count + item:getAmount()
+                    end
+                end
+            end
+        
+            player:sendMessage("you have " .. count .. " of " .. material)
+        end,
+        
+        compass = function(player)
+            local dir = player:getLookDirection()
+            local angle = math.atan2(dir.z, dir.x) * (180 / math.pi)
+            local facing = "unknown"
+        
+            if angle < 0 then angle = angle + 360 end
+        
+            if angle >= 45 and angle < 135 then
+                facing = "south"
+            elseif angle >= 135 and angle < 225 then
+                facing = "west"
+            elseif angle >= 225 and angle < 315 then
+                facing = "north"
+            else
+                facing = "east"
+            end
+        
+            player:sendMessage("you are facing " .. facing)
         end,
     }
 
