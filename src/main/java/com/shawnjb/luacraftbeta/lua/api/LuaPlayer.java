@@ -157,25 +157,45 @@ public class LuaPlayer {
         lua.set("giveItem", new VarArgFunction() {
             @Override
             public Varargs invoke(Varargs args) {
-                if (args.narg() >= 3 &&
-                        args.arg(2).isstring() &&
-                        args.arg(3).isnumber()) {
-
-                    String matName = args.arg(2).tojstring();
+                if (args.narg() >= 3 && args.arg(2).isstring() && args.arg(3).isnumber()) {
+                    String input = args.arg(2).tojstring();
                     int amount = args.arg(3).toint();
-
-                    Material mat = Material.getMaterial(matName.toUpperCase());
-
-                    if (mat != null) {
-                        ItemStack item = new ItemStack(mat, amount);
+        
+                    ItemStack item = null;
+        
+                    if (input.contains(":")) {
+                        // legacy id:data
+                        String[] parts = input.split(":");
+                        try {
+                            int id = Integer.parseInt(parts[0]);
+                            short data = Short.parseShort(parts[1]);
+        
+                            Material mat = Material.getMaterial(id);
+                            if (mat != null) {
+                                item = new ItemStack(mat, amount, data);
+                            }
+                        } catch (NumberFormatException e) {
+                            return LuaValue.valueOf("Invalid item ID format: " + input);
+                        }
+                    } else {
+                        // normal material names
+                        Material mat = Material.getMaterial(input.toUpperCase());
+                        if (mat != null) {
+                            item = new ItemStack(mat, amount);
+                        }
+                    }
+        
+                    if (item != null) {
                         player.getInventory().addItem(item);
                         return LuaValue.NIL;
                     }
-                    return LuaValue.valueOf("Invalid material name: " + matName);
+        
+                    return LuaValue.valueOf("Invalid material: " + input);
                 }
+        
                 return LuaValue.valueOf("Usage: giveItem(material, amount)");
             }
-        });
+        });        
 
         lua.set("getLocation", new OneArgFunction() {
             @Override
