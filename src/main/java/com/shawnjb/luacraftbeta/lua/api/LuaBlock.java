@@ -17,6 +17,65 @@ public class LuaBlock {
         this.block = block;
     }
 
+    private boolean isBlockSolid(Block block) {
+        int blockId = block.getTypeId();
+
+        // Define solid block IDs based on Beta 1.7.3 data
+        switch (blockId) {
+            case 1: // Stone
+            case 2: // Grass Block
+            case 3: // Dirt
+            case 4: // Cobblestone
+            case 5: // Wooden Plank
+            case 7: // Bedrock
+            case 12: // Sand
+            case 13: // Gravel
+            case 14: // Gold Ore
+            case 15: // Iron Ore
+            case 16: // Coal Ore
+            case 17: // Log
+            case 19: // Sponge
+            case 20: // Glass
+            case 21: // Lapis Lazuli Ore
+            case 22: // Lapis Lazuli Block
+            case 23: // Dispenser
+            case 24: // Sandstone
+            case 25: // Note Block
+            case 35: // Wool
+            case 41: // Gold Block
+            case 42: // Iron Block
+            case 43: // Double Stone Slab
+            case 44: // Stone Slab
+            case 45: // Brick Block
+            case 46: // TNT
+            case 47: // Bookshelf
+            case 48: // Moss Stone
+            case 49: // Obsidian
+            case 56: // Diamond Ore
+            case 57: // Diamond Block
+            case 58: // Crafting Table
+            case 60: // Farmland
+            case 61: // Furnace
+            case 62: // Burning Furnace
+            case 73: // Redstone Ore
+            case 74: // Glowing Redstone Ore
+            case 79: // Ice
+            case 80: // Snow Block
+            case 82: // Clay
+            case 84: // Jukebox
+            case 86: // Pumpkin
+            case 87: // Netherrack
+            case 88: // Soul Sand
+            case 89: // Glowstone
+            case 91: // Jack o'Lantern
+            case 97: // Monster Egg
+            case 98: // Stone Brick
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public LuaTable toLuaTable() {
         LuaTable t = new LuaTable();
 
@@ -158,6 +217,20 @@ public class LuaBlock {
             }
         });
 
+        t.set("isSolid", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(isBlockSolid(block));
+            }
+        });
+
+        t.set("getId", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue self) {
+                return LuaValue.valueOf(block.getTypeId());
+            }
+        });
+
         return t;
     }
 
@@ -249,6 +322,17 @@ public class LuaBlock {
                         new LuaDocRegistry.Param("self", "LuaBlock"),
                         new LuaDocRegistry.Param("face", "string")),
                 Arrays.asList(new LuaDocRegistry.Return("boolean", "True if that face is powered")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaBlock", "isSolid",
+                "Returns true if the block is solid (can be stood on or blocks movement).",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("boolean", "True if block is solid")),
+                true);
+
+        LuaDocRegistry.addFunction("LuaBlock", "getId", "Returns the block's legacy numeric ID (alias of getTypeId).",
+                Arrays.asList(new LuaDocRegistry.Param("self", "LuaBlock")),
+                Arrays.asList(new LuaDocRegistry.Return("number", "Legacy block ID")),
                 true);
     }
 }

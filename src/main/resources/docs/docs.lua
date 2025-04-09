@@ -495,3 +495,11 @@ function LuaBlock:getRelative(face) end
 ---@return boolean @True if that face is powered
 function LuaBlock:isBlockFacePowered(face) end
 
+---Returns true if the block is solid (can be stood on or blocks movement).
+---@return boolean @True if block is solid
+function LuaBlock:isSolid() end
+
+---Returns the block's legacy numeric ID (alias of getTypeId).
+---@return number @Legacy block ID
+function LuaBlock:getId() end
+

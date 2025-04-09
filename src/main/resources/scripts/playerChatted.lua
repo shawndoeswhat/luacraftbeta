@@ -8,7 +8,7 @@ return function(player, message)
         table.insert(args, word)
     end
 
-    local command = args[1]:sub(2):lower()
+    local rawCommand = args[1]:sub(2):lower()
     local world = player:getWorld()
     local senderName = player:getName():lower()
 
@@ -193,7 +193,60 @@ return function(player, message)
             end
         
             player:sendMessage("summoned a total of " .. total .. " " .. entityName .. "(s)")
-        end,        
+        end,
+        
+        randomtp = function(player, args)
+            local targets = resolveTargets(args[2] or "me")
+            local radius = tonumber(args[3]) or 1000
+            --- @type LuaWorld
+            local world = player:getWorld()
+            local origin = player:getLocation()
+        
+            local function getRandomOffset()
+                return math.random(-radius, radius)
+            end
+        
+            local function getSafeY(x, z)
+                for y = 127, 1, -1 do
+                    local block = world:getBlockAt(Vector3.new(x, y, z))
+                    if block and block:isSolid() then
+                        local head = world:getBlockAt(Vector3.new(x, y + 1, z))
+                        local above = world:getBlockAt(Vector3.new(x, y + 2, z))
+                        if head and not head:isSolid() and above and not above:isSolid() then
+                            return y + 1
+                        end
+                    end
+                end
+                return nil
+            end
+        
+            for _, p in ipairs(targets) do
+                local dx = getRandomOffset()
+                local dz = getRandomOffset()
+                local x = origin.x + dx
+                local z = origin.z + dz
+                local y = getSafeY(x, z)
+        
+                p:teleport(Vector3.new(x, y, z))
+                p:sendMessage("you have been randomly teleported.")
+            end
+        
+            player:sendMessage("randomly teleported " .. #targets .. " player(s) within radius " .. radius)
+        end,
+
+        heal = function(player, args)
+            local targets = resolveTargets(args[2] or "me")
+            local count = 0
+        
+            for _, p in ipairs(targets) do
+                local max = p:getMaxHealth()
+                p:setHealth(max)
+                p:sendMessage("you have been fully healed.")
+                count = count + 1
+            end
+        
+            player:sendMessage("healed " .. count .. " player(s).")
+        end,
     }
 
     local function extinguishPlayers(player, args)
@@ -302,7 +355,12 @@ return function(player, message)
         end,
     }
 
-    -- dispatch
+    local aliases = {
+        tp = "teleport",
+    }
+
+    local command = aliases[rawCommand] or rawCommand
+
     if nonAbusiveCommands[command] then
         return nonAbusiveCommands[command](player, args)
     end
