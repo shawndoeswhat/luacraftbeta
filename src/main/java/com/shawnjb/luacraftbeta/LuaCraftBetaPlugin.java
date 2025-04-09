@@ -62,7 +62,7 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
 
         LuaConsoleBridge.init(this, this.luaManager);
         log.info("[LuaCraftBeta] Launching in-process console thread...");
-        new Thread(() -> GuiConsoleManager.launch(), "LuaCraftBetaGuiConsoleThread").start();  
+        new Thread(() -> GuiConsoleManager.launch(), "LuaCraftBetaGuiConsoleThread").start();
 
         log.info("[" + pluginName + "] Is Loaded, Version: " + pdf.getVersion());
     }
@@ -88,6 +88,11 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
 
                     if ((isLuaScript || isDocsFile) && !entry.isDirectory()) {
                         File outFile = new File(getDataFolder(), name);
+
+                        if (outFile.exists()) {
+                            getLogger().info("Skipped extraction (already exists): " + name);
+                            continue;
+                        }
 
                         outFile.getParentFile().mkdirs();
 
