@@ -71,24 +71,6 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <repository>
-      <releases />
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>johnymuffin-nexus-releases</id>
-      <url>https://repository.johnymuffin.com/repository/maven-public/</url>
-    </repository>
-    <repository>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots />
-      <id>johnymuffin-nexus-snapshots</id>
-      <url>https://repository.johnymuffin.com/repository/maven-snapshots/</url>
-    </repository>
-  </repositories>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>8</maven.compiler.source>

@@ -502,3 +502,4 @@ function LuaBlock:isSolid() end
 ---Returns the block's legacy numeric ID (alias of getTypeId).
 ---@return number @Legacy block ID
 function LuaBlock:getId() end
+
