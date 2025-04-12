@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-
 import org.luaj.vm2.LuaValue;
 
 import com.shawnjb.luacraftbeta.lua.api.LuaBlock;
@@ -96,22 +95,63 @@ public class LuaCraftListener implements Listener {
         if (!config.isAutoLoadScripts())
             return;
 
-        LuaPlayer luaPlayer = new LuaPlayer(event.getPlayer());
-        if (!AuthMeHandler.isPlayerLoggedIn(event.getPlayer()))
+        Player player = event.getPlayer();
+        LuaPlayer luaPlayer = new LuaPlayer(player);
+
+        if (!AuthMeHandler.isPlayerLoggedIn(player))
             return;
 
-        if (event.getClickedBlock() != null) {
-            LuaBlock luaBlock = new LuaBlock(event.getClickedBlock());
+        LuaValue actionName = LuaValue.valueOf(event.getAction().name());
+        LuaBlock luaBlock = null;
 
-            tryExecuteScript("playerinteract.lua",
-                    luaPlayer.toLuaTable(),
-                    LuaValue.valueOf(event.getAction().name()),
-                    luaBlock.toLuaTable());
-        } else {
-            tryExecuteScript("playerinteract.lua",
-                    luaPlayer.toLuaTable(),
-                    LuaValue.valueOf(event.getAction().name()),
-                    LuaValue.NIL);
+        if (event.getClickedBlock() != null) {
+            luaBlock = new LuaBlock(event.getClickedBlock());
+        }
+
+        tryExecuteScript("playerinteract.lua",
+                luaPlayer.toLuaTable(),
+                actionName,
+                luaBlock != null ? luaBlock.toLuaTable() : LuaValue.NIL);
+    }
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (config.isAutoLoadScripts()) {
+            Entity damagee = event.getEntity();
+            Entity damager = event.getDamager();
+
+            LuaEntity luaDamagee = new LuaEntity(damagee);
+
+            LuaEntity luaDamager = null;
+            LuaPlayer luaPlayerDamager = null;
+
+            if (damager instanceof Player) {
+                luaPlayerDamager = new LuaPlayer((Player) damager);
+                luaDamager = new LuaEntity(damager);
+            } else {
+                luaDamager = new LuaEntity(damager);
+            }
+
+            double damageAmount = event.getDamage();
+            String damageCause = event.getCause().name();
+
+            try {
+                if (luaPlayerDamager != null) {
+                    tryExecuteScript("entityDamagedByPlayer.lua",
+                            luaPlayerDamager.toLuaTable(),
+                            luaDamagee.toLuaTable(),
+                            LuaValue.valueOf(damageAmount),
+                            LuaValue.valueOf(damageCause));
+                } else {
+                    tryExecuteScript("entityDamagedByEntity.lua",
+                            luaDamager.toLuaTable(),
+                            luaDamagee.toLuaTable(),
+                            LuaValue.valueOf(damageAmount),
+                            LuaValue.valueOf(damageCause));
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to execute Lua script: " + e.getMessage());
+            }
         }
     }
 

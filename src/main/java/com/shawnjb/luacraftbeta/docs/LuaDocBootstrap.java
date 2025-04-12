@@ -12,7 +12,6 @@ import com.shawnjb.luacraftbeta.lua.api.LuaBlock;
 
 public class LuaDocBootstrap {
     public static void registerAll() {
-
         BindingCore.registerDocs();
         BindingMC.registerDocs();
 
@@ -23,5 +22,7 @@ public class LuaDocBootstrap {
         LuaItemStack.registerDocs();
         LuaEntity.registerDocs();
         LuaBlock.registerDocs();
+
+        LuaDocRegistry.registerMC_ACTIONDocs();
     }
 }

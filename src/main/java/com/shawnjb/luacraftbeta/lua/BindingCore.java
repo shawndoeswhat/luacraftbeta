@@ -6,6 +6,7 @@ import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Return;
 import com.shawnjb.luacraftbeta.lua.api.LuaDataStorage;
 import com.shawnjb.luacraftbeta.lua.api.LuaVector3;
 import org.bukkit.Bukkit;
+import org.bukkit.event.block.Action;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.luaj.vm2.*;
 import org.luaj.vm2.lib.*;
@@ -77,6 +78,14 @@ public class BindingCore {
                     return LuaValue.error("Usage: Vector3.new(x, y, z)");
                 }
             });
+        }});
+
+        globals.set("MC_ACTION", new LuaTable() {{
+            set("LEFT_CLICK_BLOCK", LuaValue.valueOf(Action.LEFT_CLICK_BLOCK.name()));
+            set("RIGHT_CLICK_BLOCK", LuaValue.valueOf(Action.RIGHT_CLICK_BLOCK.name()));
+            set("LEFT_CLICK_AIR", LuaValue.valueOf(Action.LEFT_CLICK_AIR.name()));
+            set("RIGHT_CLICK_AIR", LuaValue.valueOf(Action.RIGHT_CLICK_AIR.name()));
+            set("PHYSICAL", LuaValue.valueOf(Action.PHYSICAL.name()));
         }});
 
         globals.set("storage", LuaDataStorage.createStorageTable());

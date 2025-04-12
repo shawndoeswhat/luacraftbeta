@@ -124,4 +124,14 @@ public class LuaDocRegistry {
         }
         System.out.println("[LuaDocRegistry] Global Classes: " + globalClasses);
     }
+
+    public static void registerMC_ACTIONDocs() {
+        LuaDocRegistry.addGlobalClass("MC_ACTION");
+
+        LuaDocRegistry.addField("MC_ACTION", "LEFT_CLICK_BLOCK", "string", "Represents the LEFT_CLICK_BLOCK action");
+        LuaDocRegistry.addField("MC_ACTION", "RIGHT_CLICK_BLOCK", "string", "Represents the RIGHT_CLICK_BLOCK action");
+        LuaDocRegistry.addField("MC_ACTION", "LEFT_CLICK_AIR", "string", "Represents the LEFT_CLICK_AIR action");
+        LuaDocRegistry.addField("MC_ACTION", "RIGHT_CLICK_AIR", "string", "Represents the RIGHT_CLICK_AIR action");
+        LuaDocRegistry.addField("MC_ACTION", "PHYSICAL", "string", "Represents the PHYSICAL interaction");
+    }
 }

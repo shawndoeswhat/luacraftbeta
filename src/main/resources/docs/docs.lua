@@ -32,6 +32,14 @@ local LuaEntity = {}
 ---@class LuaBlock
 local LuaBlock = {}
 
+---@class MC_ACTION
+---@field LEFT_CLICK_BLOCK string @Represents the LEFT_CLICK_BLOCK action
+---@field RIGHT_CLICK_BLOCK string @Represents the RIGHT_CLICK_BLOCK action
+---@field LEFT_CLICK_AIR string @Represents the LEFT_CLICK_AIR action
+---@field RIGHT_CLICK_AIR string @Represents the RIGHT_CLICK_AIR action
+---@field PHYSICAL string @Represents the PHYSICAL interaction
+MC_ACTION = {}
+
 ---Prints a message to the server chat prefixed with [Lua].
 ---@param message string
 function print(message) end
