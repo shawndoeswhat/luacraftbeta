@@ -1,5 +1,6 @@
 # Build output
 /target/
+/jars/
 /dependency-reduced-pom.xml
 
 # Eclipse IDE files
