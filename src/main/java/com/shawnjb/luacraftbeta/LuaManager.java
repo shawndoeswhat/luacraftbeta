@@ -19,20 +19,30 @@ import com.shawnjb.luacraftbeta.lua.LuaBindings;
 
 public class LuaManager {
     private final LuaCraftBetaPlugin plugin;
-    private final Globals globals;
     private final Set<String> missingScripts = new HashSet<>();
     private int loadedScriptCount = 0;
+    private Globals globals;
 
     public LuaManager(LuaCraftBetaPlugin plugin) {
         this.plugin = plugin;
-
-        LuaBindings bindings = new LuaBindings();
-        bindings.registerAll(plugin, this);
-        this.globals = bindings.getGlobals();
+        initLuaEnvironment();
     }
 
     public int getLoadedScriptCount() {
         return loadedScriptCount;
+    }
+
+    public void reset() {
+        initLuaEnvironment();
+        loadedScriptCount = 0;
+        missingScripts.clear();
+        plugin.getServer().getLogger().info("[LuaManager] Lua environment has been reset.");
+    }
+
+    private void initLuaEnvironment() {
+        LuaBindings bindings = new LuaBindings();
+        bindings.registerAll(plugin, this);
+        this.globals = bindings.getGlobals();
     }
 
     public void loadScript(File scriptFile) {

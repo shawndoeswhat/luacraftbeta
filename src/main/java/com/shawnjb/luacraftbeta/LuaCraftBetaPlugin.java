@@ -5,6 +5,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.shawnjb.luacraftbeta.commands.LoadScriptCommand;
 import com.shawnjb.luacraftbeta.commands.LuaInfoCommand;
+import com.shawnjb.luacraftbeta.commands.ResetLuaEnvironmentCommand;
 import com.shawnjb.luacraftbeta.commands.RunScriptCommand;
 import com.shawnjb.luacraftbeta.console.GuiConsoleManager;
 import com.shawnjb.luacraftbeta.console.LuaConsoleBridge;
@@ -63,11 +64,12 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         getCommand("luainfo").setExecutor(new LuaInfoCommand(this, luaManager));
         getCommand("runscript").setExecutor(new RunScriptCommand(this, luaManager));
         getCommand("lcbconsole").setExecutor(new LcbConsoleCommand());
-
+        getCommand("resetlua").setExecutor(new ResetLuaEnvironmentCommand(luaManager));
+        
         if (!isListenerRegistered) {
             getServer().getPluginManager().registerEvents(new StaticEventListener(this), this);
             isListenerRegistered = true;
-        }        
+        }
 
         ScriptDirectoryWatcher scriptWatcher = new ScriptDirectoryWatcher(this);
         scriptWatcher.start();

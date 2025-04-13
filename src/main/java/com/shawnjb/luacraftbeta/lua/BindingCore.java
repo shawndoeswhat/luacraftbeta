@@ -91,6 +91,18 @@ public class BindingCore {
         globals.set("storage", LuaDataStorage.createStorageTable());
     }
 
+    public static void reset(LuaValue globals) {
+        globals.set("print", LuaValue.NIL);
+        globals.set("log", LuaValue.NIL);
+        globals.set("wait", LuaValue.NIL);
+        globals.set("Vector3", LuaValue.NIL);
+        globals.set("MC_ACTION", LuaValue.NIL);
+        globals.set("storage", LuaValue.NIL);
+
+        register(globals);
+        plugin.getServer().getLogger().info("[BindingCore] Lua environment reset and bindings re-registered.");
+    }
+
     public static void registerDocs() {
         LuaDocRegistry.addClass("Vector3");
 

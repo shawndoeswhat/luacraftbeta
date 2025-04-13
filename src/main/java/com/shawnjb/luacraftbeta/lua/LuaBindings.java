@@ -27,4 +27,8 @@ public class LuaBindings {
         LuaTable shared = new LuaTable();
         globals.set("shared", shared);
     }
+
+    public void reset() {
+        globals = JsePlatform.standardGlobals();
+    }
 }

@@ -114,6 +114,15 @@ public class LuaConsoleBridge {
         }
     }
 
+    public static void resetLuaEnvironment() {
+        try {
+            luaManager.reset();
+            GuiConsoleManager.printToConsole("Lua environment has been reset and reinitialized.");
+        } catch (Exception e) {
+            GuiConsoleManager.printToConsole("Error resetting Lua environment: " + e.getMessage());
+        }
+    }
+
     public static void handleInput(String luaCode) {
         if (plugin == null || luaManager == null) {
             GuiConsoleManager.printToConsole("Bridge not initialized.");

@@ -1,7 +1,7 @@
 name: LuaCraftBeta
 description: A plugin that integrates Lua scripting into Minecraft.
 main: com.shawnjb.luacraftbeta.LuaCraftBetaPlugin
-version: 0.1.6-SNAPSHOT
+version: 0.1.6
 authors:
   - shawnjb
 softdepend:
@@ -38,6 +38,12 @@ commands:
     permission: luacraftbeta.console
     permission-message: You do not have permission to use this command.
 
+  resetlua:
+    description: Resets the Lua environment.
+    usage: /<command>
+    permission: luacraftbeta.resetlua
+    permission-message: You do not have permission to use this command.
+
 permissions:
   luacraftbeta.*:
     description: Gives access to all LuaCraftBeta commands.
@@ -47,6 +53,7 @@ permissions:
       luacraftbeta.runscript: true
       luacraftbeta.luainfo: true
       luacraftbeta.console: true
+      luacraftbeta.resetlua: true
 
   luacraftbeta.loadscript:
     description: Allows access to the /loadscript command.
@@ -59,3 +66,6 @@ permissions:
 
   luacraftbeta.luainfo:
     description: Allows access to the /luainfo command.
+
+  luacraftbeta.resetlua:
+    description: Allows access to the /resetlua command.
