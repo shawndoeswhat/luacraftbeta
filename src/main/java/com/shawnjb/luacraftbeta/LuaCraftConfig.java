@@ -55,13 +55,13 @@ public class LuaCraftConfig {
 
         if (config.getKeys("scripts.directory") == null
                 || !config.getKeys("scripts.directory").contains("scripts.directory")) {
-            config.setProperty("scripts.directory", "plugins/LuaCraftBeta/scripts"); // where else would you put them
+            config.setProperty("scripts.directory", "plugins/LuaCraftBeta/scripts");
             plugin.logger(Level.INFO, "Set default script directory: plugins/LuaCraftBeta/scripts");
         }
 
         if (config.getKeys("scripts.autoload") == null
                 || !config.getKeys("scripts.autoload").contains("scripts.autoload")) {
-            config.setProperty("scripts.autoload", true); // default auto-load setting (cause we need autoload apparently)
+            config.setProperty("scripts.autoload", true);
             plugin.logger(Level.INFO, "Set default autoload: true");
         }
 

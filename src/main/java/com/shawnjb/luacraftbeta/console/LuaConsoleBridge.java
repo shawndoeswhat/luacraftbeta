@@ -42,7 +42,7 @@ public class LuaConsoleBridge {
         }
     
         String activePlayerName = getActivePlayerName();
-        boolean debug = true; // maybe later expose a toggle for this
+        boolean debug = true;
     
         File scriptFile = new File(plugin.getDataFolder(), "scripts/" + scriptName);
         if (!scriptFile.exists()) {

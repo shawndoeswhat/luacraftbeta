@@ -219,7 +219,7 @@ public class LuaEntity {
         t.set("getMaxHealth", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue self) {
-                return LuaValue.valueOf(20); // hardcoded for Beta
+                return LuaValue.valueOf(20);
             }
         });
 

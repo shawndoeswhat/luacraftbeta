@@ -20,7 +20,6 @@ public class LuaBlock {
     private boolean isBlockSolid(Block block) {
         int blockId = block.getTypeId();
 
-        // Define solid block IDs based on Beta 1.7.3 data
         switch (blockId) {
             case 1: // Stone
             case 2: // Grass Block

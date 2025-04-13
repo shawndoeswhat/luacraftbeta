@@ -129,18 +129,18 @@ public class LuaManager {
 
     public void executeScriptWithArgsInsensitive(String fileName, boolean isAutorun, LuaValue... args) {
         File scriptsDir = new File(plugin.getConfig().getScriptsDirectory());
-
+    
         if (!scriptsDir.exists() || !scriptsDir.isDirectory()) {
             plugin.getLogger().warning("Scripts directory does not exist or is not a directory: " + scriptsDir.getPath());
             return;
         }
-
+    
         File[] files = scriptsDir.listFiles();
         if (files == null) {
             plugin.getLogger().warning("Failed to list files in scripts directory.");
             return;
         }
-
+    
         File matchedFile = null;
         for (File file : files) {
             if (file.getName().equalsIgnoreCase(fileName)) {
@@ -148,7 +148,7 @@ public class LuaManager {
                 break;
             }
         }
-
+    
         if (matchedFile == null) {
             String lower = fileName.toLowerCase();
             if (!missingScripts.contains(lower)) {
@@ -157,24 +157,24 @@ public class LuaManager {
             }
             return;
         }
-
+    
         try (FileReader reader = new FileReader(matchedFile)) {
             LuaValue chunk = globals.load(reader, matchedFile.getName(), globals);
             LuaValue returned = chunk.call();
-
+    
             if (returned.isfunction()) {
                 returned.invoke(args);
                 loadedScriptCount++;
             } else if (!isAutorun) {
                 plugin.getLogger().warning("Script " + matchedFile.getName() + " did not return a function.");
             }
-
+    
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE, "Error reading script file: " + matchedFile.getPath(), e);
         } catch (LuaError luaError) {
             plugin.getLogger().log(Level.SEVERE, "Lua execution error in script: " + matchedFile.getName(), luaError);
         }
-    }
+    }    
 
     public Object runInline(String luaCode) {
         try {

@@ -87,7 +87,7 @@ public class FileUtils {
             try {
                 if (file.isDirectory()) {
                     Files.walk(file.toPath())
-                            .sorted((path1, path2) -> path2.compareTo(path1)) // FILES BEGONE first
+                            .sorted((path1, path2) -> path2.compareTo(path1))
                             .forEach(this::deletePath);
                 } else {
                     Files.delete(file.toPath());

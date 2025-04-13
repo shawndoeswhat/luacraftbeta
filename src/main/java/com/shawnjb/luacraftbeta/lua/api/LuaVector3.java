@@ -78,7 +78,7 @@ public class LuaVector3 {
                     case "z":
                         return LuaValue.valueOf(vector.getZ());
                     default:
-                        return table.rawget(key); // fallback to functions like 'length'
+                        return table.rawget(key);
                 }
             }
         });

@@ -97,6 +97,11 @@
       <artifactId>poseidon-craftbukkit</artifactId>
       <version>1.1.10</version>
     </dependency>
+    <dependency>
+        <groupId>org.reflections</groupId>
+        <artifactId>reflections</artifactId>
+        <version>0.9.12</version>
+    </dependency>
   </dependencies>
   
   <repositories>

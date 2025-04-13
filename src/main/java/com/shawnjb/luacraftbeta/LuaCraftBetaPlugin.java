@@ -27,8 +27,17 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
     private LuaCraftConfig config;
     private LuaManager luaManager;
 
+    private static boolean isPluginEnabled = false;
+    private static boolean isListenerRegistered = false;
+
     @Override
     public void onEnable() {
+        if (isPluginEnabled) {
+            log.info("[" + pluginName + "] Plugin already enabled, skipping onEnable.");
+            return;
+        }
+
+        isPluginEnabled = true;
         log = this.getLogger();
         pdf = this.getDescription();
         pluginName = pdf.getName();
@@ -55,7 +64,10 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         getCommand("runscript").setExecutor(new RunScriptCommand(this, luaManager));
         getCommand("lcbconsole").setExecutor(new LcbConsoleCommand());
 
-        getServer().getPluginManager().registerEvents(new LuaCraftListener(this), this);
+        if (!isListenerRegistered) {
+            getServer().getPluginManager().registerEvents(new StaticEventListener(this), this);
+            isListenerRegistered = true;
+        }        
 
         ScriptDirectoryWatcher scriptWatcher = new ScriptDirectoryWatcher(this);
         scriptWatcher.start();

@@ -21,11 +21,21 @@ import com.shawnjb.luacraftbeta.docs.LuaDocRegistry;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Param;
 import com.shawnjb.luacraftbeta.docs.LuaDocRegistry.Return;
 
+import org.bukkit.entity.Entity;
+
 public class LuaPlayer {
     private final Player player;
 
     public LuaPlayer(Player player) {
         this.player = player;
+    }
+
+    public LuaPlayer(Entity entity) {
+        if (entity instanceof Player) {
+            this.player = (Player) entity;
+        } else {
+            throw new IllegalArgumentException("Entity must be a Player.");
+        }
     }
 
     public LuaTable toLuaTable() {
@@ -164,7 +174,6 @@ public class LuaPlayer {
                     ItemStack item = null;
         
                     if (input.contains(":")) {
-                        // legacy id:data
                         String[] parts = input.split(":");
                         try {
                             int id = Integer.parseInt(parts[0]);
@@ -178,7 +187,6 @@ public class LuaPlayer {
                             return LuaValue.valueOf("Invalid item ID format: " + input);
                         }
                     } else {
-                        // normal material names
                         Material mat = Material.getMaterial(input.toUpperCase());
                         if (mat != null) {
                             item = new ItemStack(mat, amount);

@@ -11,7 +11,7 @@ public class LuaBindings {
 
     public LuaBindings() {
         if (globals == null) {
-            globals = JsePlatform.standardGlobals();  // Initialize Globals only once
+            globals = JsePlatform.standardGlobals();
         }
     }
 
@@ -25,6 +25,6 @@ public class LuaBindings {
         BindingMC.register(globals);
 
         LuaTable shared = new LuaTable();
-        globals.set("shared", shared); // it is recommended to use shared as _G may already be used now or in the future
+        globals.set("shared", shared);
     }
 }
