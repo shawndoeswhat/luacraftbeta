@@ -21,6 +21,56 @@ public class BindingCore {
     }
 
     public static void register(LuaValue globals) {
+        globals.set("epoch", new ZeroArgFunction() {
+            @Override
+            public LuaValue call() {
+                long millis = System.currentTimeMillis();
+                long unixEpoch = millis / 1000;
+                return LuaValue.valueOf(unixEpoch);
+            }
+        });
+
+        globals.set("epochToDate", new OneArgFunction() {
+            @Override
+            public LuaValue call(LuaValue arg) {
+                String epochStr = arg.tojstring();
+                long epoch = Long.parseLong(epochStr);
+
+                int days_in_month[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+                long SECONDS_IN_A_DAY = 86400;
+
+                long daysSinceEpoch = epoch / SECONDS_IN_A_DAY;
+                long remainingSeconds = epoch % SECONDS_IN_A_DAY;
+
+                int year = 1970;
+                int month = 1;
+                int day = 1;
+
+                while (daysSinceEpoch >= 365) {
+                    int yearDays = 365;
+                    if ((year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))) {
+                        yearDays = 366;
+                    }
+                    daysSinceEpoch -= yearDays;
+                    year++;
+                }
+
+                while (daysSinceEpoch >= days_in_month[month - 1]) {
+                    daysSinceEpoch -= days_in_month[month - 1];
+                    month++;
+                }
+
+                day = (int) (daysSinceEpoch + 1);
+
+                int hours = (int) (remainingSeconds / 3600);
+                int minutes = (int) ((remainingSeconds % 3600) / 60);
+                int seconds = (int) (remainingSeconds % 60);
+
+                return LuaValue.valueOf(
+                        String.format("%04d-%02d-%02d %02d:%02d:%02d", year, month, day, hours, minutes, seconds));
+            }
+        });
+
         globals.set("print", new OneArgFunction() {
             @Override
             public LuaValue call(LuaValue arg) {
@@ -60,33 +110,37 @@ public class BindingCore {
             }
         });
 
-        globals.set("Vector3", new LuaTable() {{
-            set("new", new VarArgFunction() {
-                @Override
-                public Varargs invoke(Varargs args) {
-                    if (args.narg() >= 3 &&
-                            args.arg(1).isnumber() &&
-                            args.arg(2).isnumber() &&
-                            args.arg(3).isnumber()) {
+        globals.set("Vector3", new LuaTable() {
+            {
+                set("new", new VarArgFunction() {
+                    @Override
+                    public Varargs invoke(Varargs args) {
+                        if (args.narg() >= 3 &&
+                                args.arg(1).isnumber() &&
+                                args.arg(2).isnumber() &&
+                                args.arg(3).isnumber()) {
 
-                        double x = args.arg(1).todouble();
-                        double y = args.arg(2).todouble();
-                        double z = args.arg(3).todouble();
+                            double x = args.arg(1).todouble();
+                            double y = args.arg(2).todouble();
+                            double z = args.arg(3).todouble();
 
-                        return new LuaVector3(x, y, z).toLuaTable();
+                            return new LuaVector3(x, y, z).toLuaTable();
+                        }
+                        return LuaValue.error("Usage: Vector3.new(x, y, z)");
                     }
-                    return LuaValue.error("Usage: Vector3.new(x, y, z)");
-                }
-            });
-        }});
+                });
+            }
+        });
 
-        globals.set("MC_ACTION", new LuaTable() {{
-            set("LEFT_CLICK_BLOCK", LuaValue.valueOf(Action.LEFT_CLICK_BLOCK.name()));
-            set("RIGHT_CLICK_BLOCK", LuaValue.valueOf(Action.RIGHT_CLICK_BLOCK.name()));
-            set("LEFT_CLICK_AIR", LuaValue.valueOf(Action.LEFT_CLICK_AIR.name()));
-            set("RIGHT_CLICK_AIR", LuaValue.valueOf(Action.RIGHT_CLICK_AIR.name()));
-            set("PHYSICAL", LuaValue.valueOf(Action.PHYSICAL.name()));
-        }});
+        globals.set("MC_ACTION", new LuaTable() {
+            {
+                set("LEFT_CLICK_BLOCK", LuaValue.valueOf(Action.LEFT_CLICK_BLOCK.name()));
+                set("RIGHT_CLICK_BLOCK", LuaValue.valueOf(Action.RIGHT_CLICK_BLOCK.name()));
+                set("LEFT_CLICK_AIR", LuaValue.valueOf(Action.LEFT_CLICK_AIR.name()));
+                set("RIGHT_CLICK_AIR", LuaValue.valueOf(Action.RIGHT_CLICK_AIR.name()));
+                set("PHYSICAL", LuaValue.valueOf(Action.PHYSICAL.name()));
+            }
+        });
 
         globals.set("storage", LuaDataStorage.createStorageTable());
     }
@@ -105,6 +159,16 @@ public class BindingCore {
 
     public static void registerDocs() {
         LuaDocRegistry.addClass("Vector3");
+
+        LuaDocRegistry.addFunction("core", "epoch",
+                "Returns the current Unix epoch time in seconds (since 1970-01-01).",
+                null,
+                Arrays.asList(new Return("number", "The current Unix epoch time in seconds")));
+
+        LuaDocRegistry.addFunction("core", "epochToDate",
+                "Converts a Unix epoch timestamp (in seconds) to a human-readable date string (YYYY-MM-DD HH:MM:SS).",
+                Arrays.asList(new Param("epoch", "number")),
+                Arrays.asList(new Return("string", "The formatted date string in the format YYYY-MM-DD HH:MM:SS")));
 
         LuaDocRegistry.addFunction("core", "print",
                 "Prints a message to the server chat prefixed with [Lua].",

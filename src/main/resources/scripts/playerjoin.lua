@@ -3,7 +3,8 @@ return function(player)
     local key = player:getName() .. "_join"
     local data = storage.getSavedData(key)
 
-    local now = os.date("%Y-%m-%d %H:%M:%S")
+    local epochTime = epoch()
+    local now = epochToDate(epochTime)
 
     if not data or not data.joinDate then
         data = {

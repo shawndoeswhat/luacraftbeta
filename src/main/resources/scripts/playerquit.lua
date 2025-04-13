@@ -1,7 +1,9 @@
 --- @param player LuaPlayer
 return function(player)
     local key = player:getName() .. "_quit"
-    local now = os.date("%Y-%m-%d %H:%M:%S")
+    
+    local epochTime = epoch()
+    local now = epochToDate(epochTime)
     
     storage.applySaveData(key, {
         lastSeen = now

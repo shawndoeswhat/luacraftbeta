@@ -40,6 +40,15 @@ local LuaBlock = {}
 ---@field PHYSICAL string @Represents the PHYSICAL interaction
 MC_ACTION = {}
 
+---Returns the current Unix epoch time in seconds (since 1970-01-01).
+---@return number @The current Unix epoch time in seconds
+function epoch() end
+
+---Converts a Unix epoch timestamp (in seconds) to a human-readable date string (YYYY-MM-DD HH:MM:SS).
+---@param epoch number
+---@return string @The formatted date string in the format YYYY-MM-DD HH:MM:SS
+function epochToDate(epoch) end
+
 ---Prints a message to the server chat prefixed with [Lua].
 ---@param message string
 function print(message) end
