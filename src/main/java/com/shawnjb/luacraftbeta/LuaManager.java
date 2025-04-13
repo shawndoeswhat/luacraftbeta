@@ -264,16 +264,24 @@ public class LuaManager {
     }
 
     private boolean containsUnsafePath(String filePath) {
-        return filePath.contains("..") || filePath.contains("/") || filePath.contains("\\") || !filePath.startsWith(plugin.getDataFolder().getAbsolutePath());
-    }
+        String dataFolderPath = plugin.getDataFolder().getAbsolutePath();
+        String scriptPath = new File(filePath).getAbsolutePath();
+        if (!scriptPath.startsWith(dataFolderPath + File.separator + "scripts")) {
+            return true; 
+        }
+        return false;
+    }    
 
     private LuaValue executeScriptWithTimeout(LuaValue chunk) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<LuaValue> future = executor.submit(() -> {
-            chunk.call();
-            return LuaValue.NIL;
+            if (!chunk.isfunction()) {
+                plugin.getLogger().severe("Chunk is not a function. Script execution failed.");
+                return LuaValue.NIL;
+            }
+            return chunk.call();
         });
-
+        
         try {
             return future.get(5, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
@@ -281,10 +289,11 @@ public class LuaManager {
             plugin.getLogger().severe("Lua script execution timed out.");
             return LuaValue.NIL;
         } catch (InterruptedException | ExecutionException e) {
+            plugin.getLogger().severe("Error executing Lua function.");
             e.printStackTrace();
             return LuaValue.NIL;
         } finally {
             executor.shutdown();
         }
-    }
+    }    
 }
