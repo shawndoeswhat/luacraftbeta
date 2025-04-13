@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 
 import com.shawnjb.luacraftbeta.console.LuaConsoleBridge;
@@ -43,6 +44,21 @@ public class LuaManager {
         LuaBindings bindings = new LuaBindings();
         bindings.registerAll(plugin, this);
         this.globals = bindings.getGlobals();
+
+        globals.set("os", LuaValue.NIL);
+        globals.set("io", LuaValue.NIL);
+        globals.set("debug", LuaValue.NIL);
+        globals.set("package", LuaValue.NIL);
+
+        globals.set("load", LuaValue.NIL);
+        globals.set("loadfile", LuaValue.NIL);
+        globals.set("dofile", LuaValue.NIL);
+
+        LuaValue coroutineLib = globals.get("coroutine");
+        coroutineLib.set("create", LuaValue.NIL);
+        coroutineLib.set("resume", LuaValue.NIL);
+        coroutineLib.set("yield", LuaValue.NIL);
+        coroutineLib.set("status", coroutineLib.get("status"));
     }
 
     public void loadScript(File scriptFile) {
@@ -51,9 +67,15 @@ public class LuaManager {
             return;
         }
 
+        String filePath = scriptFile.getAbsolutePath();
+        if (containsUnsafePath(filePath)) {
+            plugin.getLogger().severe("Attempted access to restricted or invalid file: " + filePath);
+            return;
+        }
+
         try (FileReader reader = new FileReader(scriptFile)) {
             LuaValue chunk = globals.load(reader, scriptFile.getName(), globals);
-            chunk.call();
+            executeScriptWithTimeout(chunk);
             loadedScriptCount++;
         } catch (IOException e) {
             plugin.getLogger().severe("Error reading script file: " + scriptFile.getName());
@@ -67,7 +89,7 @@ public class LuaManager {
     public void executeScriptFromString(String script, String playerName) {
         try {
             LuaValue chunk = globals.load(script, "inlineScript", globals);
-            chunk.call();
+            executeScriptWithTimeout(chunk);
             globals.set("playerName", LuaValue.valueOf(playerName));
         } catch (LuaError luaError) {
             plugin.getLogger().severe("Lua execution error in inline script.");
@@ -82,9 +104,15 @@ public class LuaManager {
             return;
         }
 
+        String filePath = scriptFile.getAbsolutePath();
+        if (containsUnsafePath(filePath)) {
+            plugin.getLogger().severe("Attempted access to restricted file: " + filePath);
+            return;
+        }
+
         try (FileReader reader = new FileReader(scriptFile)) {
             LuaValue chunk = globals.load(reader, scriptFile.getName(), globals);
-            LuaValue returned = chunk.call();
+            LuaValue returned = executeScriptWithTimeout(chunk);
 
             if (!returned.isfunction()) {
                 plugin.getLogger().warning("Script " + scriptFile.getName() + " did not return a function.");
@@ -139,18 +167,19 @@ public class LuaManager {
 
     public void executeScriptWithArgsInsensitive(String fileName, boolean isAutorun, LuaValue... args) {
         File scriptsDir = new File(plugin.getConfig().getScriptsDirectory());
-    
+
         if (!scriptsDir.exists() || !scriptsDir.isDirectory()) {
-            plugin.getLogger().warning("Scripts directory does not exist or is not a directory: " + scriptsDir.getPath());
+            plugin.getLogger()
+                    .warning("Scripts directory does not exist or is not a directory: " + scriptsDir.getPath());
             return;
         }
-    
+
         File[] files = scriptsDir.listFiles();
         if (files == null) {
             plugin.getLogger().warning("Failed to list files in scripts directory.");
             return;
         }
-    
+
         File matchedFile = null;
         for (File file : files) {
             if (file.getName().equalsIgnoreCase(fileName)) {
@@ -158,7 +187,7 @@ public class LuaManager {
                 break;
             }
         }
-    
+
         if (matchedFile == null) {
             String lower = fileName.toLowerCase();
             if (!missingScripts.contains(lower)) {
@@ -167,24 +196,24 @@ public class LuaManager {
             }
             return;
         }
-    
+
         try (FileReader reader = new FileReader(matchedFile)) {
             LuaValue chunk = globals.load(reader, matchedFile.getName(), globals);
             LuaValue returned = chunk.call();
-    
+
             if (returned.isfunction()) {
                 returned.invoke(args);
                 loadedScriptCount++;
             } else if (!isAutorun) {
                 plugin.getLogger().warning("Script " + matchedFile.getName() + " did not return a function.");
             }
-    
+
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE, "Error reading script file: " + matchedFile.getPath(), e);
         } catch (LuaError luaError) {
             plugin.getLogger().log(Level.SEVERE, "Lua execution error in script: " + matchedFile.getName(), luaError);
         }
-    }    
+    }
 
     public Object runInline(String luaCode) {
         try {
@@ -232,5 +261,30 @@ public class LuaManager {
 
     public void notifyScriptCreatedOrModified(String fileName) {
         missingScripts.remove(fileName.toLowerCase());
+    }
+
+    private boolean containsUnsafePath(String filePath) {
+        return filePath.contains("..") || filePath.contains("/") || filePath.contains("\\") || !filePath.startsWith(plugin.getDataFolder().getAbsolutePath());
+    }
+
+    private LuaValue executeScriptWithTimeout(LuaValue chunk) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<LuaValue> future = executor.submit(() -> {
+            chunk.call();
+            return LuaValue.NIL;
+        });
+
+        try {
+            return future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            future.cancel(true);
+            plugin.getLogger().severe("Lua script execution timed out.");
+            return LuaValue.NIL;
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return LuaValue.NIL;
+        } finally {
+            executor.shutdown();
+        }
     }
 }
