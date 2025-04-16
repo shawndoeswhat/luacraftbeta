@@ -1,4 +1,8 @@
 # Build output
+/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 /target/
 /jars/
 /dependency-reduced-pom.xml
@@ -10,3 +14,24 @@
 
 # VS Code settings
 .vscode/
+
+# IntelliJ IDEA files
+.idea/
+
+# Maven wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle files
+.gradle/
+build/
+
+# Node.js files
+node_modules/
+
+# macOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
