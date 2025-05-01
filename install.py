@@ -6,6 +6,7 @@ from colorama import Fore, Style, init
 init(autoreset=True)
 
 JAR_NAME = 'LuaCraftBeta-0.1.6.jar'
+JAR_PREFIX = 'LuaCraftBeta'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 SOURCE_JAR = os.path.join(SCRIPT_DIR, 'target', JAR_NAME)
 SEARCH_ROOT = '/opt'
@@ -44,6 +45,20 @@ plugins_dir = os.path.join(server_dir, 'plugins')
 if not os.path.isdir(plugins_dir):
     log_warning(f"Creating plugins directory at: {plugins_dir}")
     os.makedirs(plugins_dir, exist_ok=True)
+
+removed = False
+for filename in os.listdir(plugins_dir):
+    if filename.startswith(JAR_PREFIX) and filename.endswith('.jar'):
+        old_path = os.path.join(plugins_dir, filename)
+        try:
+            os.remove(old_path)
+            log_warning(f"Removed old plugin: {filename}")
+            removed = True
+        except Exception as e:
+            log_error(f"Failed to remove old JAR {filename}: {e}")
+
+if not removed:
+    log_success("No previous LuaCraftBeta plugin versions found.")
 
 dest_jar = os.path.join(plugins_dir, JAR_NAME)
 

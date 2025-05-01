@@ -20,7 +20,7 @@ def ensure_dir(path):
 ensure_dir('./target')
 run_command('mvn package')
 
-artifact_name = 'LuaCraftBeta-0.1.6.jar'
+artifact_name = 'LuaCraftBeta-0.1.7-SNAPSHOT.jar'
 jar_path = os.path.join('target', artifact_name)
 
 if os.path.isfile(jar_path):
