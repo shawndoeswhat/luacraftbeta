@@ -24,7 +24,7 @@
               <goal>java</goal>
             </goals>
             <configuration>
-              <mainClass>com.shawnjb.luacraftbeta.docs.LuaDocGenerator</mainClass>
+              <mainClass>com.shawndoeswhat.luacraftbeta.docs.LuaDocGenerator</mainClass>
               <arguments>
                 <argument>src/main/resources/docs/docs.lua</argument>
               </arguments>

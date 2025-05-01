@@ -12,16 +12,21 @@
 2. Install the dependencies.
 
     ```bash
-    python3 -m build.py
+    python3 deps.py
     ```
 
 3. Build the project.
 
     ```bash
-    mvn clean package
+    python3 build.py
     ```
 
-4. Place the output `target/LuaCraftBeta-{version}.jar` into your Poseidon server's `plugins` directory.
+4. Place the output `target/LuaCraftBeta-{version}.jar` into your Poseidon server's `plugins` directory, or run the `install.py` script if you're on Debian or similar to install it to any Bukkit server found in `/opt`.
+
+    ```bash
+    # installs to first bukkit server in /opt
+    python3 install.py
+    ```
 
 ## Usage
 

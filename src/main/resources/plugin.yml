@@ -1,9 +1,9 @@
 name: LuaCraftBeta
 description: A plugin that integrates Lua scripting into Minecraft.
-main: com.shawnjb.luacraftbeta.LuaCraftBetaPlugin
+main: com.shawndoeswhat.luacraftbeta.LuaCraftBetaPlugin
 version: 0.1.6
 authors:
-  - shawnjb
+  - shawndoeswhat
 softdepend:
   - Essentials
 

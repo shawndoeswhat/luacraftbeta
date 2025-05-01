@@ -1,26 +1,30 @@
 import os
 import subprocess
-import requests
-from colorama import Fore, Style
+from colorama import Fore, Style, init
 
-os.makedirs('./jars', exist_ok=True)
+init(autoreset=True)
 
-def download_file(url, destination):
-    print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Downloading {os.path.basename(destination)}...")
-    response = requests.get(url, stream=True)
-    with open(destination, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=8192):
-            file.write(chunk)
-
-download_file('https://github.com/retromcorg/Project-Poseidon/releases/download/1.1.10-250328-1731-f67a8e3/project-poseidon-1.1.10.jar', './jars/project-poseidon-1.1.10.jar')
-download_file('https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar', './jars/luaj-jse-3.0.2.jar')
-
-def run_maven_command(command):
+def run_command(command, cwd=None):
     print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Running: {command}")
-    subprocess.run(command, shell=True, check=True)
+    try:
+        subprocess.run(command, shell=True, check=True, cwd=cwd)
+    except subprocess.CalledProcessError as e:
+        print(f"{Style.BRIGHT}{Fore.RED}[✘]{Style.RESET_ALL} Command failed with exit code {e.returncode}")
+        exit(e.returncode)
 
-run_maven_command('mvn install:install-file -Dfile=./jars/project-poseidon-1.1.10.jar -DgroupId=com.legacyminecraft.poseidon -DartifactId=poseidon-craftbukkit -Dversion=1.1.10 -Dpackaging=jar')
-run_maven_command('mvn install:install-file -Dfile=./jars/luaj-jse-3.0.2.jar -DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar')
-run_maven_command('mvn clean eclipse:eclipse')
+def ensure_dir(path):
+    if not os.path.exists(path):
+        print(f"{Style.BRIGHT}{Fore.YELLOW}[!] Creating missing directory: {path}")
+        os.makedirs(path)
 
-print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Build process complete!")
+ensure_dir('./target')
+run_command('mvn package')
+
+artifact_name = 'LuaCraftBeta-0.1.6.jar'
+jar_path = os.path.join('target', artifact_name)
+
+if os.path.isfile(jar_path):
+    print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Build succeeded: {Fore.YELLOW}{jar_path}")
+else:
+    print(f"{Style.BRIGHT}{Fore.RED}[✘]{Style.RESET_ALL} Build failed: {artifact_name} not found in target/")
+    exit(1)
