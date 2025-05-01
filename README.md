@@ -12,7 +12,7 @@
 2. Install the dependencies.
 
     ```bash
-    py build.py
+    python3 -m build.py
     ```
 
 3. Build the project.
