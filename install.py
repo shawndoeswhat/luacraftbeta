@@ -5,7 +5,7 @@ from colorama import Fore, Style, init
 
 init(autoreset=True)
 
-JAR_NAME = 'LuaCraftBeta-0.1.6.jar'
+JAR_NAME = 'LuaCraftBeta-0.1.7-SNAPSHOT.jar'
 JAR_PREFIX = 'LuaCraftBeta'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 SOURCE_JAR = os.path.join(SCRIPT_DIR, 'target', JAR_NAME)
