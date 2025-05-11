@@ -4,6 +4,7 @@
 --- @param action_name string
 --- @param block LuaBlock
 return function(player, action_name, block)
+    --[=[
     local messages = {
         'ouch, that\'s got to hurt.',
         'mommy said not to play with fire.',
@@ -16,4 +17,9 @@ return function(player, action_name, block)
         player:setFireTicks(20)
         player:sendMessage('§e' .. randomMessage)
     end
+    
+    -- In a perfect world, the code above would work but I haven't
+    -- been able to find out how to achieve the fire interaction properly.
+    -- Other block IDs should work just fine.
+    ]=]
 end
