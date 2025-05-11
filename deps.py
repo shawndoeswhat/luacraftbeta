@@ -1,26 +1,45 @@
-import os
-import subprocess
-import requests
+#!/usr/bin/env python3
+import os, re, subprocess, sys, requests
 from colorama import Fore, Style
 
-os.makedirs('./jars', exist_ok=True)
+def banner(msg): print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} {msg}")
+def download(url, dest):
+    banner(f"Downloading {os.path.basename(dest)} …")
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(dest, "wb") as f:
+            for chunk in r.iter_content(8192): f.write(chunk)
+def mvn(cmd):
+    banner(f"Running: {cmd}")
+    subprocess.run(cmd, shell=True, check=True)
 
-def download_file(url, destination):
-    print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Downloading {os.path.basename(destination)}...")
-    response = requests.get(url, stream=True)
-    with open(destination, 'wb') as file:
-        for chunk in response.iter_content(chunk_size=8192):
-            file.write(chunk)
+OWNER, REPO = "retromcorg", "Project-Poseidon"
+ASSET_RE    = re.compile(r"project-poseidon-(\d+\.\d+\.\d+)\.jar$")
+LUAJ_URL    = "https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar"
+LUAJ_FILE   = "luaj-jse-3.0.2.jar"
+os.makedirs("jars", exist_ok=True)
 
-download_file('https://github.com/retromcorg/Project-Poseidon/releases/download/1.1.10-250328-1731-f67a8e3/project-poseidon-1.1.10.jar', './jars/project-poseidon-1.1.10.jar')
-download_file('https://github.com/luaj/luaj/releases/download/v3.0.2/luaj-jse-3.0.2.jar', './jars/luaj-jse-3.0.2.jar')
+release = requests.get(
+    f"https://api.github.com/repos/{OWNER}/{REPO}/releases/latest",
+    timeout=20
+).json()
 
-def run_maven_command(command):
-    print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Running: {command}")
-    subprocess.run(command, shell=True, check=True)
+asset = next((a for a in release["assets"] if ASSET_RE.match(a["name"])), None)
+if not asset:
+    sys.exit("Poseidon JAR not found; update ASSET_RE if the name changed.")
 
-run_maven_command('mvn install:install-file -Dfile=./jars/project-poseidon-1.1.10.jar -DgroupId=com.legacyminecraft.poseidon -DartifactId=poseidon-craftbukkit -Dversion=1.1.10 -Dpackaging=jar')
-run_maven_command('mvn install:install-file -Dfile=./jars/luaj-jse-3.0.2.jar -DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar')
-run_maven_command('mvn clean eclipse:eclipse')
+poseidon_file = asset["name"]
+poseidon_ver  = ASSET_RE.match(poseidon_file).group(1)
 
-print(f"{Style.BRIGHT}{Fore.GREEN}[✔]{Style.RESET_ALL} Dependency installation process complete!")
+download(asset["browser_download_url"], f"jars/{poseidon_file}")
+download(LUAJ_URL,                      f"jars/{LUAJ_FILE}")
+
+mvn(f"mvn install:install-file -Dfile=jars/{poseidon_file} "
+    f"-DgroupId=com.legacyminecraft.poseidon "
+    f"-DartifactId=poseidon-craftbukkit -Dversion={poseidon_ver} -Dpackaging=jar")
+
+mvn("mvn install:install-file -Dfile=jars/luaj-jse-3.0.2.jar "
+    "-DgroupId=org.luaj -DartifactId=luaj-jse -Dversion=3.0.2 -Dpackaging=jar")
+
+mvn("mvn clean eclipse:eclipse")
+banner("Dependency installation process complete!")
