@@ -36,6 +36,7 @@ public class ConsoleManager {
                 break;
             case "exit":
                 GuiConsoleManager.printToConsole("Goodbye.");
+                GuiConsoleManager.closeConsole();
                 break;
             default:
                 GuiConsoleManager.printToConsole("Unknown command: " + command);

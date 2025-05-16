@@ -83,6 +83,13 @@ public class GuiConsoleManager {
         });
     }
 
+    public static void closeConsole() {
+        if (frame != null) {
+            frame.dispose();
+            frame = null;
+        }
+    }
+
     public static void printToConsole(String text) {
         SwingUtilities.invokeLater(() -> {
             if (outputArea != null) {

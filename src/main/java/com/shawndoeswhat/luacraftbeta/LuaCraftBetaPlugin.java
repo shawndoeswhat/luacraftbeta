@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.shawndoeswhat.luacraftbeta.commands.LoadScriptCommand;
+import com.shawndoeswhat.luacraftbeta.commands.LuaConsoleCommand;
 import com.shawndoeswhat.luacraftbeta.commands.LuaInfoCommand;
 import com.shawndoeswhat.luacraftbeta.commands.ResetLuaEnvironmentCommand;
 import com.shawndoeswhat.luacraftbeta.commands.RunScriptCommand;
@@ -64,6 +65,7 @@ public class LuaCraftBetaPlugin extends JavaPlugin {
         getCommand("luainfo").setExecutor(new LuaInfoCommand(this, luaManager));
         getCommand("runscript").setExecutor(new RunScriptCommand(this, luaManager));
         getCommand("lcbconsole").setExecutor(new LcbConsoleCommand());
+        getCommand("luaconsole").setExecutor(new LuaConsoleCommand()); // seperate in the case it is changed
         getCommand("resetlua").setExecutor(new ResetLuaEnvironmentCommand(luaManager));
         
         if (!isListenerRegistered) {

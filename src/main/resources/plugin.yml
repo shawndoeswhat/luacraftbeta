@@ -38,6 +38,12 @@ commands:
     permission: luacraftbeta.console
     permission-message: You do not have permission to use this command.
 
+  luaconsole:
+    description: Opens the LuaCraftBeta GUI console (alias of /lcbconsole).
+    usage: /<command>
+    permission: luacraftbeta.console
+    permission-message: You do not have permission to use this command.
+
   resetlua:
     description: Resets the Lua environment.
     usage: /<command>
@@ -57,15 +63,13 @@ permissions:
 
   luacraftbeta.loadscript:
     description: Allows access to the /loadscript command.
-
   luacraftbeta.listscripts:
     description: Allows access to the /listscripts command.
-
   luacraftbeta.runscript:
     description: Allows access to the /runscript command.
-
   luacraftbeta.luainfo:
     description: Allows access to the /luainfo command.
-
+  luacraftbeta.console:
+    description: Allows access to /lcbconsole and /luaconsole.
   luacraftbeta.resetlua:
     description: Allows access to the /resetlua command.
