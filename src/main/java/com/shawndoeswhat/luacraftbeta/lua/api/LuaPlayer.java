@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -20,8 +21,6 @@ import org.luaj.vm2.lib.VarArgFunction;
 import com.shawndoeswhat.luacraftbeta.docs.LuaDocRegistry;
 import com.shawndoeswhat.luacraftbeta.docs.LuaDocRegistry.Param;
 import com.shawndoeswhat.luacraftbeta.docs.LuaDocRegistry.Return;
-
-import org.bukkit.entity.Entity;
 
 public class LuaPlayer {
     private final Player player;

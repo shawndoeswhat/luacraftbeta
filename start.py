@@ -2,7 +2,7 @@
 """
 Run the first CraftBukkit / Project Poseidon server we can find under /opt,
 making sure we cd into that directory so no stray files pollute the calling
-folder.  Mirrors the search logic of install_plugin.py.
+folder.  Mirrors the search logic of install.py.
 """
 
 import os

@@ -50,81 +50,90 @@ public class BindingMC {
         luaManager = manager;
     }
 
+    public static JavaPlugin getPlugin() {
+        return plugin;
+    }
+
     private static final CommandSender LUA_COMMAND_SENDER = new CommandSender() {
         @Override
         public void sendMessage(String message) {
             Bukkit.getServer().getLogger().info("[LuaCommand] " + message);
         }
-    
+
         @Override
         public Server getServer() {
             return Bukkit.getServer();
         }
-    
+
         @Override
         public String getName() {
             return "LuaScript";
         }
-    
+
         @Override
         public boolean isPermissionSet(String name) {
             return true;
         }
-    
+
         @Override
         public boolean isPermissionSet(org.bukkit.permissions.Permission perm) {
             return true;
         }
-    
+
         @Override
         public boolean hasPermission(String name) {
             return true;
         }
-    
+
         @Override
         public boolean hasPermission(org.bukkit.permissions.Permission perm) {
             return true;
         }
-    
+
         @Override
-        public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin, String name, boolean value) {
+        public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin, String name,
+                boolean value) {
             return null;
         }
-    
+
         @Override
         public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin) {
             return null;
         }
-    
+
         @Override
-        public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin, String name, boolean value, int ticks) {
+        public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin, String name,
+                boolean value, int ticks) {
             return null;
         }
-    
+
         @Override
         public org.bukkit.permissions.PermissionAttachment addAttachment(org.bukkit.plugin.Plugin plugin, int ticks) {
             return null;
         }
-    
+
         @Override
-        public void removeAttachment(org.bukkit.permissions.PermissionAttachment attachment) {}
-    
+        public void removeAttachment(org.bukkit.permissions.PermissionAttachment attachment) {
+        }
+
         @Override
-        public void recalculatePermissions() {}
-    
+        public void recalculatePermissions() {
+        }
+
         @Override
         public Set<org.bukkit.permissions.PermissionAttachmentInfo> getEffectivePermissions() {
             return new HashSet<>();
         }
-    
+
         @Override
         public boolean isOp() {
             return true;
         }
-    
+
         @Override
-        public void setOp(boolean value) {}
-    };    
+        public void setOp(boolean value) {
+        }
+    };
 
     public static void register(LuaValue globals) {
         LuaTable mc = globals.get("mc").isnil() ? new LuaTable() : globals.get("mc").checktable();
@@ -165,7 +174,7 @@ public class BindingMC {
             public LuaValue call() {
                 return LuaValue.valueOf(luaManager.getLoadedScriptCount());
             }
-        });        
+        });
 
         mc.set("summon", new VarArgFunction() {
             @Override
@@ -369,10 +378,10 @@ public class BindingMC {
                 if (args.narg() == 0 || !args.arg(1).isstring()) {
                     return LuaValue.valueOf("Usage: runCommand(command, [playerName])");
                 }
-        
+
                 String command = args.arg(1).tojstring();
                 CommandSender sender;
-        
+
                 if (args.narg() >= 2 && args.arg(2).isstring()) {
                     String playerName = args.arg(2).tojstring();
                     Player player = Bukkit.getPlayer(playerName);
@@ -383,11 +392,11 @@ public class BindingMC {
                 } else {
                     sender = LUA_COMMAND_SENDER;
                 }
-        
+
                 boolean success = Bukkit.getServer().dispatchCommand(sender, command);
                 return LuaValue.valueOf(success);
             }
-        });        
+        });
 
         globals.set("mc", mc);
     }
